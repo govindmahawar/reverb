@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#090b12">
+    <title>Reverb · sonic atmosphere</title>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
+    <!-- SVG filter for liquid glass distortion -->
+    <svg style="display: none;">
+        <filter id="lg-filter">
+            <feTurbulence type="fractalNoise" baseFrequency="0.008 0.008" numOctaves="2" result="noise" />
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="6" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+    </svg>
+</head>
+
+<body>
+    <!-- muted background orbs -->
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="orb orb-4"></div>
+
+    <!-- Mobile sidebar backdrop -->
+    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+    <div class="app-shell">
+        <!-- ---- SIDEBAR ---- -->
+        <aside class="sidebar liquid-glass">
+            <!-- FIXED LOGO HEADER: DOES NOT SCROLL -->
+            <div class="brand">
+                <div class="brand-left">
+                    <svg class="reverb-wave-logo" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#b8a8e0" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 6c2.5 0 2.5 2.5 5 2.5s2.5-2.5 5-2.5 2.5 2.5 5 2.5 2.5-2.5 5-2.5"/>
+                        <path d="M2 12c2.5 0 2.5 2.5 5 2.5s2.5-2.5 5-2.5 2.5 2.5 5 2.5 2.5-2.5 5-2.5"/>
+                        <path d="M2 18c2.5 0 2.5 2.5 5 2.5s2.5-2.5 5-2.5 2.5 2.5 5 2.5 2.5-2.5 5-2.5"/>
+                    </svg>
+                    <div class="brand-name">re<span>verb</span></div>
+                </div>
+                <button class="sidebar-toggle-btn" id="sidebar-toggle" title="Toggle Retractable Sidebar">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            </div>
+
+            <!-- SCROLLABLE NAV CONTENT BELOW LOGO -->
+            <div class="sidebar-nav-scroll">
+                <!-- main nav -->
+                <div class="nav-group">
+                    <div class="nav-btn active" data-title="Home">
+                        <i class="fas fa-home"></i>
+                        <span>Home</span>
+                    </div>
+                    <div class="nav-btn" data-title="Search">
+                        <i class="fas fa-magnifying-glass"></i>
+                        <span>Search</span>
+                    </div>
+                    <div class="nav-btn" data-title="Explore">
+                        <i class="fas fa-compass"></i>
+                        <span>Explore</span>
+                    </div>
+                    <div class="nav-btn" data-title="Artists">
+                        <i class="fas fa-user"></i>
+                        <span>Artists</span>
+                    </div>
+                </div>
+
+                <!-- library nav -->
+                <div class="nav-group">
+                    <div class="nav-group-label">Your Library</div>
+                    <div class="nav-btn" data-title="Playlists">
+                        <i class="fas fa-list-ul"></i>
+                        <span>Playlists</span>
+                    </div>
+                    <div class="nav-btn" data-title="Liked Songs">
+                        <i class="fas fa-heart"></i>
+                        <span>Liked Songs</span>
+                    </div>
+                    <div class="nav-btn" data-title="Recently Played">
+                        <i class="fas fa-clock-rotate-left"></i>
+                        <span>Recently Played</span>
+                    </div>
+                    <div class="nav-btn" data-title="Downloads">
+                        <i class="fas fa-download"></i>
+                        <span>Downloads</span>
+                    </div>
+                </div>
+
+                <!-- mini playlists -->
+                <div class="nav-group" id="playlists-group">
+                    <div class="nav-group-header">
+                        <div class="nav-group-label" style="padding:0;">Playlists</div>
+                        <button class="add-playlist-btn" id="btn-open-playlist-modal" title="Create New Playlist">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    <div class="playlist-mini" data-title="Night Drive">
+                        <div class="playlist-mini-art pa-1"><i class="fas fa-moon"></i></div>
+                        <span>Night Drive</span>
+                    </div>
+                    <div class="playlist-mini" data-title="Morning Dew">
+                        <div class="playlist-mini-art pa-2"><i class="fas fa-cloud-sun"></i></div>
+                        <span>Morning Dew</span>
+                    </div>
+                    <div class="playlist-mini" data-title="Focus Deep">
+                        <div class="playlist-mini-art pa-3"><i class="fas fa-headphones"></i></div>
+                        <span>Focus Deep</span>
+                    </div>
+                    <div class="playlist-mini" data-title="Indie Folk">
+                        <div class="playlist-mini-art pa-4"><i class="fas fa-guitar"></i></div>
+                        <span>Indie Folk</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ---- MAIN CONTENT ---- -->
+        <main class="main-content">
+            <!-- topbar with Reverb homepage branding -->
+            <div class="topbar">
+                <div class="topbar-left">
+                    <!-- Mobile hamburger -->
+                    <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu">
+                        <i class="fas fa-bars"></i>
+                    </button>
+
+                    <div class="home-brand">
+                        <svg class="reverb-wave-logo" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#b8a8e0" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M2 6c2.5 0 2.5 2.5 5 2.5s2.5-2.5 5-2.5 2.5 2.5 5 2.5 2.5-2.5 5-2.5"/>
+                            <path d="M2 12c2.5 0 2.5 2.5 5 2.5s2.5-2.5 5-2.5 2.5 2.5 5 2.5 2.5-2.5 5-2.5"/>
+                            <path d="M2 18c2.5 0 2.5 2.5 5 2.5s2.5-2.5 5-2.5 2.5 2.5 5 2.5 2.5-2.5 5-2.5"/>
+                        </svg>
+                        <div class="brand-name">re<span>verb</span></div>
+                        <span class="home-brand-badge">SONIC ATMOSPHERE</span>
+                    </div>
+                    <div class="search-pill">
+                        <i class="fas fa-magnifying-glass"></i>
+                        <input type="text" id="search-input" placeholder="Search songs, artists, albums...">
+                    </div>
+                </div>
+
+                <!-- Profile wrapper -->
+                <div class="avatar-wrapper" id="avatar-wrapper">
+                    <div class="avatar" id="avatar-btn">A</div>
+
+                    <!-- Profile Dropdown -->
+                    <div class="profile-dropdown" id="profile-dropdown">
+                        <div class="profile-header">
+                            <div class="profile-header-avatar">A</div>
+                            <div class="profile-header-info">
+                                <span class="profile-header-name">Alex Carter</span>
+                                <span class="profile-header-email">alex@reverb.fm</span>
+                            </div>
+                        </div>
+
+                        <div class="profile-menu">
+                            <div class="profile-menu-item" data-action="add-account">
+                                <i class="fas fa-user-plus"></i>
+                                <span>Add Account</span>
+                            </div>
+                            <div class="profile-menu-item" data-action="recent">
+                                <i class="fas fa-clock-rotate-left"></i>
+                                <span>Recent</span>
+                            </div>
+                            <div class="profile-menu-item" data-action="updates">
+                                <i class="fas fa-bell"></i>
+                                <span>Your Updates</span>
+                                <span class="profile-badge">3</span>
+                            </div>
+                            <div class="profile-menu-item" data-action="settings">
+                                <i class="fas fa-gear"></i>
+                                <span>Settings & Privacy</span>
+                            </div>
+                        </div>
+
+                        <div class="profile-footer">
+                            <button class="profile-logout-btn" id="profile-logout-btn">
+                                <i class="fas fa-arrow-right-from-bracket"></i>
+                                Log out
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- hero -->
+            <div class="hero liquid-glass">
+                <div class="hero-content">
+                    <div class="hero-tag"><i class="fas fa-sparkles"></i> new ambient collection</div>
+                    <h2>echoes of<br><em>tomorrow</em></h2>
+                    <p><i class="fas fa-circle-play"></i> 12 tracks · 48 min · curated for you</p>
+                    <div class="hero-actions">
+                        <button class="btn-primary" id="hero-play-btn"><i class="fas fa-play"></i> Play now</button>
+                        <button class="btn-secondary"><i class="fas fa-plus"></i> Save</button>
+                    </div>
+                </div>
+                <div class="hero-visual">
+                    <div class="disc">
+                        <i class="fas fa-compact-disc"></i>
+                    </div>
+                    <div class="track">
+                        <span class="track-name">midnight sun</span>
+                        <span class="track-artist">lumen & echo</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FRESH DROPS -->
+            <div class="section-head">
+                <h3>fresh drops <small>just for you</small></h3>
+                <a href="#">see all <i class="fas fa-arrow-right" style="font-size:0.7rem;"></i></a>
+            </div>
+            <div class="music-grid">
+                <div class="music-card liquid-glass">
+                    <div class="card-art">
+                        <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400&h=400&fit=crop" alt="Velvet Sky">
+                        <div class="card-play-overlay">
+                            <div class="card-play-btn"><i class="fas fa-play"></i></div>
+                        </div>
+                    </div>
+                    <div class="card-title">Velvet Sky</div>
+                    <div class="card-artist"><i class="fas fa-user"></i> Aurora Fields</div>
+                </div>
+                <div class="music-card liquid-glass">
+                    <div class="card-art">
+                        <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&h=400&fit=crop" alt="Moonlit">
+                        <div class="card-play-overlay">
+                            <div class="card-play-btn"><i class="fas fa-play"></i></div>
+                        </div>
+                    </div>
+                    <div class="card-title">Moonlit</div>
+                    <div class="card-artist"><i class="fas fa-user"></i> Nocturne Club</div>
+                </div>
+                <div class="music-card liquid-glass">
+                    <div class="card-art">
+                        <img src="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=400&h=400&fit=crop" alt="Deep Blue">
+                        <div class="card-play-overlay">
+                            <div class="card-play-btn"><i class="fas fa-play"></i></div>
+                        </div>
+                    </div>
+                    <div class="card-title">Deep Blue</div>
+                    <div class="card-artist"><i class="fas fa-user"></i> Kaya</div>
+                </div>
+                <div class="music-card liquid-glass">
+                    <div class="card-art">
+                        <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=400&fit=crop" alt="Reverb Waves">
+                        <div class="card-play-overlay">
+                            <div class="card-play-btn"><i class="fas fa-play"></i></div>
+                        </div>
+                    </div>
+                    <div class="card-title">Reverb Waves</div>
+                    <div class="card-artist"><i class="fas fa-user"></i> Lumen</div>
+                </div>
+                <div class="music-card liquid-glass">
+                    <div class="card-art">
+                        <img src="https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=400&h=400&fit=crop" alt="Solstice">
+                        <div class="card-play-overlay">
+                            <div class="card-play-btn"><i class="fas fa-play"></i></div>
+                        </div>
+                    </div>
+                    <div class="card-title">Solstice</div>
+                    <div class="card-artist"><i class="fas fa-user"></i> Mirage</div>
+                </div>
+            </div>
+
+            <!-- DEMO SONGS -->
+            <div class="section-head">
+                <h3>demo songs <small>click to play</small></h3>
+                <a href="#">view all <i class="fas fa-arrow-right" style="font-size:0.7rem;"></i></a>
+            </div>
+            <div class="song-list">
+                <div class="song-row">
+                    <div class="song-play"><i class="fas fa-play"></i></div>
+                    <div class="song-thumb">
+                        <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=80&h=80&fit=crop" alt="">
+                    </div>
+                    <div class="song-info">
+                        <span class="song-title">Midnight Sun</span>
+                        <span class="song-artist">Lumen & Echo</span>
+                    </div>
+                    <span class="song-album">Echoes of Tomorrow</span>
+                    <span class="song-duration">3:42</span>
+                    <i class="fas fa-heart song-like"></i>
+                </div>
+                <div class="song-row">
+                    <div class="song-play"><i class="fas fa-play"></i></div>
+                    <div class="song-thumb">
+                        <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=80&h=80&fit=crop" alt="">
+                    </div>
+                    <div class="song-info">
+                        <span class="song-title">Velvet Sky</span>
+                        <span class="song-artist">Aurora Fields</span>
+                    </div>
+                    <span class="song-album">Fresh Drops</span>
+                    <span class="song-duration">4:15</span>
+                    <i class="fas fa-heart song-like"></i>
+                </div>
+                <div class="song-row">
+                    <div class="song-play"><i class="fas fa-play"></i></div>
+                    <div class="song-thumb">
+                        <img src="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=80&h=80&fit=crop" alt="">
+                    </div>
+                    <div class="song-info">
+                        <span class="song-title">Deep Blue</span>
+                        <span class="song-artist">Kaya</span>
+                    </div>
+                    <span class="song-album">Oceanic</span>
+                    <span class="song-duration">3:28</span>
+                    <i class="fas fa-heart song-like"></i>
+                </div>
+                <div class="song-row">
+                    <div class="song-play"><i class="fas fa-play"></i></div>
+                    <div class="song-thumb">
+                        <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=80&h=80&fit=crop" alt="">
+                    </div>
+                    <div class="song-info">
+                        <span class="song-title">Moonlit</span>
+                        <span class="song-artist">Nocturne Club</span>
+                    </div>
+                    <span class="song-album">After Hours</span>
+                    <span class="song-duration">5:02</span>
+                    <i class="fas fa-heart song-like"></i>
+                </div>
+                <div class="song-row">
+                    <div class="song-play"><i class="fas fa-play"></i></div>
+                    <div class="song-thumb">
+                        <img src="https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=80&h=80&fit=crop" alt="">
+                    </div>
+                    <div class="song-info">
+                        <span class="song-title">Reverb Waves</span>
+                        <span class="song-artist">Lumen</span>
+                    </div>
+                    <span class="song-album">Reverb Waves</span>
+                    <span class="song-duration">4:38</span>
+                    <i class="fas fa-heart song-like"></i>
+                </div>
+            </div>
+
+            <!-- LATE NIGHT PICKS -->
+            <div class="section-head">
+                <h3>for late hours <small>chill & unwind</small></h3>
+                <a href="#">explore <i class="fas fa-arrow-right" style="font-size:0.7rem;"></i></a>
+            </div>
+            <div class="music-grid">
+                <div class="music-card liquid-glass">
+                    <div class="card-art">
+                        <img src="https://images.unsplash.com/photo-1499415479124-43c32433a620?w=400&h=400&fit=crop" alt="After Hours">
+                        <div class="card-play-overlay">
+                            <div class="card-play-btn"><i class="fas fa-play"></i></div>
+                        </div>
+                    </div>
+                    <div class="card-title">After Hours</div>
+                    <div class="card-artist"><i class="fas fa-user"></i> Various Artists</div>
+                </div>
+                <div class="music-card liquid-glass">
+                    <div class="card-art">
+                        <img src="https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=400&h=400&fit=crop" alt="Soft Static">
+                        <div class="card-play-overlay">
+                            <div class="card-play-btn"><i class="fas fa-play"></i></div>
+                        </div>
+                    </div>
+                    <div class="card-title">Soft Static</div>
+                    <div class="card-artist"><i class="fas fa-user"></i> Wren</div>
+                </div>
+                <div class="music-card liquid-glass">
+                    <div class="card-art">
+                        <img src="https://images.unsplash.com/photo-1446057032654-9d8885db76c6?w=400&h=400&fit=crop" alt="Fern">
+                        <div class="card-play-overlay">
+                            <div class="card-play-btn"><i class="fas fa-play"></i></div>
+                        </div>
+                    </div>
+                    <div class="card-title">Fern</div>
+                    <div class="card-artist"><i class="fas fa-user"></i> Bamboo</div>
+                </div>
+                <div class="music-card liquid-glass">
+                    <div class="card-art">
+                        <img src="https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?w=400&h=400&fit=crop" alt="Deep Current">
+                        <div class="card-play-overlay">
+                            <div class="card-play-btn"><i class="fas fa-play"></i></div>
+                        </div>
+                    </div>
+                    <div class="card-title">Deep Current</div>
+                    <div class="card-artist"><i class="fas fa-user"></i> Kaya</div>
+                </div>
+                <div class="music-card liquid-glass">
+                    <div class="card-art">
+                        <img src="https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=400&h=400&fit=crop" alt="Starlit">
+                        <div class="card-play-overlay">
+                            <div class="card-play-btn"><i class="fas fa-play"></i></div>
+                        </div>
+                    </div>
+                    <div class="card-title">Starlit</div>
+                    <div class="card-artist"><i class="fas fa-user"></i> Nova</div>
+                </div>
+            </div>
+
+            <!-- MADE FOR YOU -->
+            <div class="section-head">
+                <h3>made for you <small>daily mixes</small></h3>
+                <a href="#">discover <i class="fas fa-arrow-right" style="font-size:0.7rem;"></i></a>
+            </div>
+            <div class="music-grid">
+                <div class="music-card liquid-glass">
+                    <div class="card-art">
+                        <img src="https://images.unsplash.com/photo-1484876065684-b683cf17d276?w=400&h=400&fit=crop" alt="Reverb Radio">
+                        <div class="card-play-overlay">
+                            <div class="card-play-btn"><i class="fas fa-play"></i></div>
+                        </div>
+                    </div>
+                    <div class="card-title">Reverb Radio</div>
+                    <div class="card-artist"><i class="fas fa-infinity"></i> endless chill</div>
+                </div>
+                <div class="music-card liquid-glass">
+                    <div class="card-art">
+                        <img src="https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?w=400&h=400&fit=crop" alt="Morning Brew">
+                        <div class="card-play-overlay">
+                            <div class="card-play-btn"><i class="fas fa-play"></i></div>
+                        </div>
+                    </div>
+                    <div class="card-title">Morning Brew</div>
+                    <div class="card-artist"><i class="fas fa-sun"></i> daily mix 1</div>
+                </div>
+                <div class="music-card liquid-glass">
+                    <div class="card-art">
+                        <img src="https://images.unsplash.com/photo-1519638831568-d9897f54ed69?w=400&h=400&fit=crop" alt="Focus Flow">
+                        <div class="card-play-overlay">
+                            <div class="card-play-btn"><i class="fas fa-play"></i></div>
+                        </div>
+                    </div>
+                    <div class="card-title">Focus Flow</div>
+                    <div class="card-artist"><i class="fas fa-brain"></i> deep work</div>
+                </div>
+                <div class="music-card liquid-glass">
+                    <div class="card-art">
+                        <img src="https://images.unsplash.com/photo-1464375117522-1311d6a5b81f?w=400&h=400&fit=crop" alt="Acoustic Chill">
+                        <div class="card-play-overlay">
+                            <div class="card-play-btn"><i class="fas fa-play"></i></div>
+                        </div>
+                    </div>
+                    <div class="card-title">Acoustic Chill</div>
+                    <div class="card-artist"><i class="fas fa-fire"></i> unwind</div>
+                </div>
+                <div class="music-card liquid-glass">
+                    <div class="card-art">
+                        <img src="https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=400&h=400&fit=crop" alt="Lo-Fi Beats">
+                        <div class="card-play-overlay">
+                            <div class="card-play-btn"><i class="fas fa-play"></i></div>
+                        </div>
+                    </div>
+                    <div class="card-title">Lo-Fi Beats</div>
+                    <div class="card-artist"><i class="fas fa-moon"></i> study session</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ---- PLAYER DOCK ---- -->
+    <div class="player-dock liquid-glass">
+        <audio id="audio-player" preload="auto"></audio>
+        <div class="player-left">
+            <div class="player-art">
+                <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=100&h=100&fit=crop" alt="Now Playing Art" id="player-art-img">
+            </div>
+            <div class="player-track">
+                <h4 id="player-track-title">Midnight Sun</h4>
+                <p id="player-track-artist">Lumen & Echo</p>
+            </div>
+        </div>
+        <div class="player-center">
+            <div class="player-buttons">
+                <i class="fas fa-backward-step" id="prev-btn" title="Previous Track" style="cursor: pointer;"></i>
+                <i class="fas fa-play-circle" id="main-play-btn" title="Play / Pause" style="cursor: pointer;"></i>
+                <i class="fas fa-forward-step" id="next-btn" title="Next Track" style="cursor: pointer;"></i>
+            </div>
+            <div class="progress-dock">
+                <span id="curr-time">0:00</span>
+                <div class="progress-container">
+                    <div class="progress-fill" id="progress-fill"></div>
+                    <input type="range" id="progress-slider" min="0" max="100" value="0" step="0.1">
+                </div>
+                <span id="total-time">3:42</span>
+            </div>
+        </div>
+        <div class="player-right">
+            <div class="volume-box">
+                <i class="fas fa-volume-high" id="volume-btn" title="Mute / Unmute" style="cursor: pointer;"></i>
+                <input type="range" id="volume-slider" min="0" max="1" step="0.02" value="0.8" title="Volume">
+            </div>
+            <i class="fas fa-repeat" id="repeat-btn" title="Toggle Repeat" style="cursor: pointer;"></i>
+            <i class="fas fa-shuffle" id="shuffle-btn" title="Toggle Shuffle" style="cursor: pointer;"></i>
+        </div>
+    </div>
+
+    <!-- ---- CREATE PLAYLIST MODAL ---- -->
+    <div class="modal-overlay" id="playlist-modal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><i class="fas fa-folder-plus"></i> Create Playlist</h3>
+                <button class="modal-close" id="btn-close-modal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <label for="playlist-name-input">Playlist Name</label>
+                <input type="text" id="playlist-name-input" placeholder="e.g. Midnight Ambient, Focus Flow...">
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="btn-cancel-playlist">Cancel</button>
+                <button class="btn-primary" id="btn-save-playlist">Create Playlist</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ SCRIPTS (order matters!) ============ -->
+    <script src="js/data.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/sidebar.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/likes.js"></script>
+    <script src="js/playlists.js"></script>
+    <script src="js/profile.js"></script>
+    <script src="js/cards.js"></script>
+    <script src="js/navigation.js"></script>
+    <script src="js/main.js"></script>
+</body>
+
+</html>

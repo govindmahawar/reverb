@@ -9,6 +9,10 @@ window.Sidebar = (function () {
     /* ---------- Mobile open/close ---------- */
     function openMobileSidebar() {
         if (!sidebar || !backdrop) return;
+        /* Blur any focused element so no blue ring shows */
+        if (document.activeElement && document.activeElement.blur) {
+            document.activeElement.blur();
+        }
         sidebar.classList.add('mobile-open');
         backdrop.classList.add('active');
         document.body.style.overflow = 'hidden';
@@ -58,10 +62,13 @@ window.Sidebar = (function () {
             });
         }
 
-        /* ---- Mobile: hamburger opens drawer ---- */
+               /* ---- Mobile: hamburger opens drawer ---- */
         if (mobileMenuBtn) {
+            mobileMenuBtn.addEventListener('mousedown', (e) => e.preventDefault());
             mobileMenuBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
+                e.preventDefault();
+                mobileMenuBtn.blur();
                 if (sidebar.classList.contains('mobile-open')) {
                     closeMobileSidebar();
                 } else {
@@ -69,7 +76,6 @@ window.Sidebar = (function () {
                 }
             });
         }
-
         /* ---- Mobile: backdrop click closes ---- */
         if (backdrop) {
             backdrop.addEventListener('click', closeMobileSidebar);

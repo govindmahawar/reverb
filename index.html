@@ -123,11 +123,6 @@
             <!-- topbar with Reverb homepage branding -->
             <div class="topbar">
                 <div class="topbar-left">
-                    <!-- Mobile hamburger -->
-                    <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu">
-                        <i class="fas fa-bars"></i>
-                    </button>
-
                     <div class="home-brand">
                         <svg class="reverb-wave-logo" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#b8a8e0" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M2 6c2.5 0 2.5 2.5 5 2.5s2.5-2.5 5-2.5 2.5 2.5 5 2.5 2.5-2.5 5-2.5"/>
@@ -455,6 +450,230 @@
                     <div class="card-artist"><i class="fas fa-moon"></i> study session</div>
                 </div>
             </div>
+
+            <!-- ============================================
+                 LIBRARY PAGE (mobile — Spotify style)
+            ============================================ -->
+            <section class="library-page" id="library-page">
+                <!-- Header -->
+                <div class="library-header">
+                    <div class="library-header-top">
+                        <div class="library-avatar">A</div>
+                        <div class="library-header-info">
+                            <h2>Your Library</h2>
+                            <p>Alex Carter</p>
+                        </div>
+                        <button class="library-add-btn" id="library-add-btn" aria-label="Add">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+
+                    <!-- Tabs -->
+                    <div class="library-tabs" role="tablist">
+                        <button class="library-tab active" data-tab="playlists">Playlists</button>
+                        <button class="library-tab" data-tab="artists">Artists</button>
+                        <button class="library-tab" data-tab="albums">Albums</button>
+                        <button class="library-tab" data-tab="liked">Liked</button>
+                    </div>
+                </div>
+
+                <!-- Filter chips -->
+                <div class="library-chips">
+                    <button class="lib-chip active">Recents</button>
+                    <button class="lib-chip">Downloaded</button>
+                    <button class="lib-chip">By you</button>
+                </div>
+
+                <!-- Tab Content: PLAYLISTS -->
+                <div class="library-tab-content" data-content="playlists">
+                    <div class="library-liked-card" data-play-target="liked">
+                        <div class="library-liked-art">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <div class="library-liked-info">
+                            <span class="library-liked-title">Liked Songs</span>
+                            <span class="library-liked-meta">Playlist · 42 songs</span>
+                        </div>
+                    </div>
+
+                    <div class="library-item" data-play-target="0">
+                        <div class="library-item-art" style="background: linear-gradient(145deg, #5a4a8a, #3d3260);">
+                            <i class="fas fa-moon"></i>
+                        </div>
+                        <div class="library-item-info">
+                            <span class="library-item-title">Night Drive</span>
+                            <span class="library-item-meta">Playlist · Lumen & Echo</span>
+                        </div>
+                    </div>
+
+                    <div class="library-item" data-play-target="1">
+                        <div class="library-item-art" style="background: linear-gradient(145deg, #2a4a6e, #1a2f4a);">
+                            <i class="fas fa-cloud-sun"></i>
+                        </div>
+                        <div class="library-item-info">
+                            <span class="library-item-title">Morning Dew</span>
+                            <span class="library-item-meta">Playlist · Aurora Fields</span>
+                        </div>
+                    </div>
+
+                    <div class="library-item" data-play-target="2">
+                        <div class="library-item-art" style="background: linear-gradient(145deg, #6e3a5a, #4a253d);">
+                            <i class="fas fa-headphones"></i>
+                        </div>
+                        <div class="library-item-info">
+                            <span class="library-item-title">Focus Deep</span>
+                            <span class="library-item-meta">Playlist · Kaya</span>
+                        </div>
+                    </div>
+
+                    <div class="library-item" data-play-target="3">
+                        <div class="library-item-art" style="background: linear-gradient(145deg, #2a5a5a, #1a3d3d);">
+                            <i class="fas fa-guitar"></i>
+                        </div>
+                        <div class="library-item-info">
+                            <span class="library-item-title">Indie Folk</span>
+                            <span class="library-item-meta">Playlist · Nocturne Club</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab Content: ARTISTS -->
+                <div class="library-tab-content" data-content="artists" style="display:none;">
+                    <div class="library-item" data-play-target="0">
+                        <div class="library-item-art library-artist-art">
+                            <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=100&h=100&fit=crop" alt="Lumen & Echo">
+                        </div>
+                        <div class="library-item-info">
+                            <span class="library-item-title">Lumen & Echo</span>
+                            <span class="library-item-meta">Artist</span>
+                        </div>
+                    </div>
+
+                    <div class="library-item" data-play-target="1">
+                        <div class="library-item-art library-artist-art">
+                            <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=100&h=100&fit=crop" alt="Aurora Fields">
+                        </div>
+                        <div class="library-item-info">
+                            <span class="library-item-title">Aurora Fields</span>
+                            <span class="library-item-meta">Artist</span>
+                        </div>
+                    </div>
+
+                    <div class="library-item" data-play-target="2">
+                        <div class="library-item-art library-artist-art">
+                            <img src="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=100&h=100&fit=crop" alt="Kaya">
+                        </div>
+                        <div class="library-item-info">
+                            <span class="library-item-title">Kaya</span>
+                            <span class="library-item-meta">Artist</span>
+                        </div>
+                    </div>
+
+                    <div class="library-item" data-play-target="3">
+                        <div class="library-item-art library-artist-art">
+                            <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=100&h=100&fit=crop" alt="Nocturne Club">
+                        </div>
+                        <div class="library-item-info">
+                            <span class="library-item-title">Nocturne Club</span>
+                            <span class="library-item-meta">Artist</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab Content: ALBUMS -->
+                <div class="library-tab-content" data-content="albums" style="display:none;">
+                    <div class="library-item" data-play-target="0">
+                        <div class="library-item-art">
+                            <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=100&h=100&fit=crop" alt="Echoes of Tomorrow">
+                        </div>
+                        <div class="library-item-info">
+                            <span class="library-item-title">Echoes of Tomorrow</span>
+                            <span class="library-item-meta">Album · Lumen & Echo</span>
+                        </div>
+                    </div>
+
+                    <div class="library-item" data-play-target="1">
+                        <div class="library-item-art">
+                            <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=100&h=100&fit=crop" alt="Fresh Drops">
+                        </div>
+                        <div class="library-item-info">
+                            <span class="library-item-title">Fresh Drops</span>
+                            <span class="library-item-meta">Album · Aurora Fields</span>
+                        </div>
+                    </div>
+
+                    <div class="library-item" data-play-target="2">
+                        <div class="library-item-art">
+                            <img src="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=100&h=100&fit=crop" alt="Oceanic">
+                        </div>
+                        <div class="library-item-info">
+                            <span class="library-item-title">Oceanic</span>
+                            <span class="library-item-meta">Album · Kaya</span>
+                        </div>
+                    </div>
+
+                    <div class="library-item" data-play-target="3">
+                        <div class="library-item-art">
+                            <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=100&h=100&fit=crop" alt="After Hours">
+                        </div>
+                        <div class="library-item-info">
+                            <span class="library-item-title">After Hours</span>
+                            <span class="library-item-meta">Album · Nocturne Club</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab Content: LIKED -->
+                <div class="library-tab-content" data-content="liked" style="display:none;">
+                    <div class="library-empty">
+                        <i class="fas fa-heart"></i>
+                        <p>Songs you like will appear here</p>
+                        <span>Tap the heart on any song to save it</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================
+                 SEARCH PAGE (mobile — full-page search)
+            ============================================ -->
+            <section class="search-page" id="search-page">
+                <div class="search-page-header">
+                    <div class="search-page-input-wrap">
+                        <i class="fas fa-magnifying-glass"></i>
+                        <input type="text" id="mobile-search-input" placeholder="What do you want to listen to?">
+                        <button class="search-page-clear" id="mobile-search-clear" aria-label="Clear">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Live suggestions appear here while typing -->
+                <div class="search-suggestions" id="search-suggestions"></div>
+
+                <div class="search-page-body" id="search-page-body">
+                    <h3 class="search-section-title">Browse all</h3>
+                    <div class="search-categories">
+                        <div class="search-cat" style="background: linear-gradient(135deg, #8b5cf6, #6d28d9);">
+                            <span>Music</span>
+                        </div>
+                        <div class="search-cat" style="background: linear-gradient(135deg, #ec4899, #be185d);">
+                            <span>Podcasts</span>
+                        </div>
+                        <div class="search-cat" style="background: linear-gradient(135deg, #06b6d4, #0e7490);">
+                            <span>Chill</span>
+                        </div>
+                        <div class="search-cat" style="background: linear-gradient(135deg, #f59e0b, #b45309);">
+                            <span>Focus</span>
+                        </div>
+                        <div class="search-cat" style="background: linear-gradient(135deg, #10b981, #047857);">
+                            <span>New Releases</span>
+                        </div>
+                        <div class="search-cat" style="background: linear-gradient(135deg, #6366f1, #4338ca);">
+                            <span>Live</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </main>
     </div>
 
@@ -495,6 +714,31 @@
         </div>
     </div>
 
+        <!-- ---- MOBILE BOTTOM NAV (only visible on mobile) ---- -->
+    <nav class="mobile-bottom-nav" id="mobile-bottom-nav">
+        <button class="mbn-item active" data-nav="home" aria-label="Home">
+            <i class="fas fa-house"></i>
+            <span>Home</span>
+        </button>
+        <button class="mbn-item" data-nav="search" aria-label="Search">
+            <i class="fas fa-magnifying-glass"></i>
+            <span>Search</span>
+        </button>
+        <button class="mbn-item" data-nav="library" aria-label="Your Library">
+            <i class="fas fa-book-open"></i>
+            <span>Library</span>
+        </button>
+        <button class="mbn-item" data-nav="premium" aria-label="Premium">
+            <i class="fas fa-crown"></i>
+            <span>Premium</span>
+        </button>
+        <button class="mbn-item" data-nav="create" aria-label="Create">
+            <i class="fas fa-plus"></i>
+            <span>Create</span>
+        </button>
+    </nav>
+
+
     <!-- ---- CREATE PLAYLIST MODAL ---- -->
     <div class="modal-overlay" id="playlist-modal">
         <div class="modal-card">
@@ -523,6 +767,7 @@
     <script src="js/profile.js"></script>
     <script src="js/cards.js"></script>
     <script src="js/navigation.js"></script>
+    <script src="js/bottom-nav.js"></script>
     <script src="js/main.js"></script>
 </body>
 

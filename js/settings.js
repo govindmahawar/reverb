@@ -1,8 +1,5 @@
 /* ==================================================================
-   SETTINGS.JS — Settings page
-   - Theme, Language, Quality, Crossfade, Autoplay
-   - Persist to localStorage
-   - Apply theme immediately
+   SETTINGS.JS — Settings page (theme, language, quality, accent)
    Exposes: window.Settings
 ================================================================== */
 
@@ -15,7 +12,8 @@ window.Settings = (function () {
         language: 'en',
         quality: 'normal',
         crossfade: false,
-        autoplay: true
+        autoplay: true,
+        accent: '#8b7ab8'
     };
 
     let current = { ...DEFAULT_SETTINGS };
@@ -37,14 +35,48 @@ window.Settings = (function () {
         applyTheme();
     }
 
-    /* ---------- Apply theme ---------- */
-    function applyTheme() {
-        document.body.classList.remove('theme-darker', 'theme-purple');
-        if (current.theme === 'darker') document.body.classList.add('theme-darker');
-        else if (current.theme === 'purple') document.body.classList.add('theme-purple');
+    /* ---------- Hex helpers ---------- */
+    function hexToRgb(hex) {
+        const h = (hex || '#8b7ab8').replace('#', '');
+        const bigint = parseInt(h.length === 3
+            ? h.split('').map(c => c + c).join('')
+            : h, 16);
+        return `${(bigint >> 16) & 255}, ${(bigint >> 8) & 255}, ${bigint & 255}`;
     }
 
-    /* ---------- Sync form controls with stored values ---------- */
+    function adjustHex(hex, percent) {
+        const h = (hex || '#8b7ab8').replace('#', '');
+        const num = parseInt(h.length === 3
+            ? h.split('').map(c => c + c).join('')
+            : h, 16);
+        let r = (num >> 16) & 255;
+        let g = (num >> 8) & 255;
+        let b = num & 255;
+        const amt = Math.round(2.55 * percent);
+        r = Math.max(0, Math.min(255, r + amt));
+        g = Math.max(0, Math.min(255, g + amt));
+        b = Math.max(0, Math.min(255, b + amt));
+        return '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('');
+    }
+
+    /* ---------- Apply theme + accent ---------- */
+    function applyTheme() {
+        document.body.classList.remove('theme-darker', 'theme-purple', 'theme-light');
+        if (current.theme === 'darker') document.body.classList.add('theme-darker');
+        else if (current.theme === 'purple') document.body.classList.add('theme-purple');
+        else if (current.theme === 'light') document.body.classList.add('theme-light');
+
+        const root = document.documentElement;
+        const accent = current.accent || '#8b7ab8';
+        root.style.setProperty('--accent', accent);
+        root.style.setProperty('--accent-rgb', hexToRgb(accent));
+        root.style.setProperty('--accent-light', adjustHex(accent, 25));
+        root.style.setProperty('--accent-dark', adjustHex(accent, -15));
+
+        console.log('[Settings] Theme applied:', current.theme, '| Accent:', accent);
+    }
+
+    /* ---------- Sync form controls ---------- */
     function syncForm() {
         const themeSel = document.getElementById('setting-theme');
         const langSel = document.getElementById('setting-language');
@@ -57,13 +89,88 @@ window.Settings = (function () {
         if (qualitySel) qualitySel.value = current.quality;
         if (crossfadeChk) crossfadeChk.checked = !!current.crossfade;
         if (autoplayChk) autoplayChk.checked = !!current.autoplay;
+
+        /* Accent swatches active state */
+        const accent = (current.accent || '#8b7ab8').toLowerCase();
+        document.querySelectorAll('.accent-swatch').forEach(sw => {
+            const color = (sw.getAttribute('data-accent') || '').toLowerCase();
+            sw.classList.toggle('active', color === accent);
+        });
+
+        const customInput = document.getElementById('setting-accent-custom');
+        if (customInput) customInput.value = current.accent || '#8b7ab8';
     }
 
     /* ---------- Open page ---------- */
     function openPage() {
         syncForm();
-        if (window.Pages) {
-            window.Pages.navigate('settings');
+        if (window.Pages) window.Pages.navigate('settings');
+    }
+
+    /* ---------- Wire up accent swatches ---------- */
+    function wireAccentSwatches() {
+        const swatches = document.querySelectorAll('.accent-swatch');
+        console.log('[Settings] Wiring', swatches.length, 'accent swatches');
+
+        swatches.forEach(sw => {
+            /* Prevent double-binding */
+            if (sw._accentBound) return;
+            sw._accentBound = true;
+
+            sw.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const color = sw.getAttribute('data-accent');
+                console.log('[Settings] Accent swatch clicked:', color);
+                if (!color) return;
+
+                current.accent = color;
+                save();
+                syncForm();
+
+                if (window.BottomNav && window.BottomNav.showToast) {
+                    window.BottomNav.showToast('Accent updated 🎨');
+                }
+            });
+        });
+
+        /* Custom color picker */
+        const customInput = document.getElementById('setting-accent-custom');
+        if (customInput && !customInput._accentBound) {
+            customInput._accentBound = true;
+
+            customInput.addEventListener('input', (e) => {
+                const color = e.target.value;
+                console.log('[Settings] Custom accent picked:', color);
+                current.accent = color;
+                save();
+
+                /* Remove active from preset swatches */
+                document.querySelectorAll('.accent-swatch').forEach(s => s.classList.remove('active'));
+            });
+        }
+
+        /* Reset button */
+        const resetAccentBtn = document.getElementById('setting-accent-reset');
+        if (resetAccentBtn && !resetAccentBtn._accentBound) {
+            resetAccentBtn._accentBound = true;
+
+            resetAccentBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const DEFAULT_ACCENT = '#8b7ab8';
+                current.accent = DEFAULT_ACCENT;
+                save();
+                syncForm();
+
+                console.log('[Settings] Accent reset to default:', DEFAULT_ACCENT);
+
+                if (window.BottomNav && window.BottomNav.showToast) {
+                    window.BottomNav.showToast('Accent reset to default 🎨');
+                }
+            });
         }
     }
 
@@ -73,7 +180,7 @@ window.Settings = (function () {
         applyTheme();
         syncForm();
 
-        /* Wire up inputs */
+        /* Wire up selects and checkboxes */
         const themeSel = document.getElementById('setting-theme');
         const langSel = document.getElementById('setting-language');
         const qualitySel = document.getElementById('setting-quality');
@@ -143,13 +250,17 @@ window.Settings = (function () {
             });
         }
 
-        console.log('[Settings] Loaded. Theme:', current.theme, '| Quality:', current.quality);
+        /* Wire accent swatches */
+        wireAccentSwatches();
+
+        console.log('[Settings] Init complete. Accent:', current.accent);
     }
 
     return {
         init,
         openPage,
         get: () => current,
-        set: (s) => { current = { ...current, ...s }; save(); syncForm(); }
+        set: (s) => { current = { ...current, ...s }; save(); syncForm(); },
+        applyTheme
     };
 })();

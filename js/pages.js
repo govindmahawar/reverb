@@ -1,13 +1,15 @@
 /* ==================================================================
    PAGES.JS — Central page router
-   Handles: Home, Search, Explore, Artists (+ profile), Playlists,
-            Liked Songs, Recently Played, Downloads
+   Handles: Home, Search, Explore, Artists (+ profile), Album,
+            Playlists, Liked, Recent, Downloads, Profile Edit,
+            Settings, Following, Library
    Works on BOTH desktop (sidebar) and mobile (bottom nav).
    Exposes: window.Pages
 ================================================================== */
 
 window.Pages = (function () {
 
+    /* Map: sidebar data-title → body class (or '' for home) */
     const NAV_TO_PAGE = {
         'Home':            '',
         'Search':          'page-search',
@@ -19,12 +21,14 @@ window.Pages = (function () {
         'Downloads':       'page-downloads'
     };
 
-   const ALL_PAGE_CLASSES = [
+    /* All body classes we manage */
+    const ALL_PAGE_CLASSES = [
         'page-search',
         'page-library',
         'page-explore',
         'page-artists',
         'page-artist-profile',
+        'page-album',
         'page-playlists',
         'page-liked',
         'page-recent',
@@ -110,7 +114,7 @@ window.Pages = (function () {
         if (bottomKey) setActiveBottomNav(bottomKey);
     }
 
-    /* ---------- Navigate ---------- */
+    /* ---------- Navigate to a page ---------- */
     function navigate(pageKey, options = {}) {
         clearAllPageClasses();
 
@@ -133,7 +137,7 @@ window.Pages = (function () {
         } else if (pageKey === 'recent') {
             document.body.classList.add('page-recent');
             renderRecentSongs();
-               } else if (pageKey === 'downloads') {
+        } else if (pageKey === 'downloads') {
             document.body.classList.add('page-downloads');
             renderDownloads();
         } else if (pageKey === 'profile-edit') {
@@ -143,6 +147,8 @@ window.Pages = (function () {
         } else if (pageKey === 'followed') {
             document.body.classList.add('page-followed');
             if (window.Follows) window.Follows.render();
+        } else if (pageKey === 'album') {
+            document.body.classList.add('page-album');
         }
 
         syncNavBarsForPage(pageKey);
@@ -198,21 +204,22 @@ window.Pages = (function () {
             }
         }
 
-                const followBtn = document.getElementById('artist-follow-btn');
+        /* Sync follow button state */
+        const followBtn = document.getElementById('artist-follow-btn');
         if (followBtn) {
             const artistImg = tracks[0]?.art || options.fallbackImage || '';
-            /* Store on button for delegation handler */
             followBtn.dataset.artistName = artistName;
             followBtn.dataset.artistImage = artistImg;
-            /* Sync visual state */
             if (window.Follows) {
                 window.Follows.syncFollowButton(artistName, artistImg);
             }
         }
 
+        /* Reset shuffle state */
         const shuffleBtn = document.getElementById('artist-shuffle-btn');
         if (shuffleBtn) shuffleBtn.classList.remove('active');
 
+        /* Render song list */
         if (listEl) {
             listEl.innerHTML = '';
             if (tracks.length) {
@@ -236,6 +243,7 @@ window.Pages = (function () {
                     listEl.appendChild(row);
                 });
 
+                /* Wire song clicks → play */
                 listEl.querySelectorAll('.song-row').forEach(row => {
                     row.addEventListener('click', (e) => {
                         if (e.target.classList.contains('song-like')) return;
@@ -246,7 +254,10 @@ window.Pages = (function () {
                     });
                 });
 
-
+                /* Sync heart states */
+                if (window.Likes && window.Likes.syncAllHearts) {
+                    window.Likes.syncAllHearts(listEl);
+                }
             } else {
                 if (emptyEl) emptyEl.style.display = 'flex';
             }
@@ -318,7 +329,7 @@ window.Pages = (function () {
     }
 
     function renderLikedSongs() {
-        /* Delegate to the Likes module — it reads from localStorage */
+        /* Delegate to Likes module — reads from localStorage */
         if (window.Likes && window.Likes.renderLikedPage) {
             window.Likes.renderLikedPage();
         }
@@ -363,7 +374,8 @@ window.Pages = (function () {
        INIT
     ================================================================ */
     function init() {
-        /* Sidebar nav buttons */
+
+        /* ---- Sidebar nav buttons ---- */
         document.querySelectorAll('.nav-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 const title = btn.getAttribute('data-title');
@@ -383,12 +395,12 @@ window.Pages = (function () {
             });
         });
 
-        /* Playlist mini cards */
+        /* ---- Playlist mini cards (sidebar) ---- */
         document.querySelectorAll('.playlist-mini').forEach(item => {
             item.addEventListener('click', () => navigate('playlists'));
         });
 
-        /* Explore cards */
+        /* ---- Explore cards ---- */
         document.querySelectorAll('.explore-card').forEach(card => {
             card.addEventListener('click', () => {
                 const label = card.querySelector('span')?.textContent || 'Explore';
@@ -398,7 +410,7 @@ window.Pages = (function () {
             });
         });
 
-        /* Artist cards → open ARTIST PROFILE */
+        /* ---- Artist cards → open ARTIST PROFILE ---- */
         const artistCards = document.querySelectorAll('.artist-card');
         console.log('[Pages] Binding', artistCards.length, 'artist cards');
 
@@ -415,10 +427,7 @@ window.Pages = (function () {
                 const artistImg = card.querySelector('.artist-art img')?.src;
                 console.log('[Pages] Artist name:', artistName);
 
-                if (!artistName) {
-                    console.warn('[Pages] No artist name found!');
-                    return;
-                }
+                if (!artistName) return;
                 openArtistProfile(artistName, {
                     from: 'artists',
                     fallbackImage: artistImg
@@ -426,7 +435,7 @@ window.Pages = (function () {
             });
         });
 
-        /* Artist profile: back button */
+        /* ---- Artist profile: back ---- */
         const backBtn = document.getElementById('artist-back-btn');
         if (backBtn) {
             backBtn.addEventListener('click', () => {
@@ -434,13 +443,13 @@ window.Pages = (function () {
             });
         }
 
-        /* Artist profile: play all */
+        /* ---- Artist profile: play-all ---- */
         const playAllBtn = document.getElementById('artist-play-all-btn');
         if (playAllBtn) {
             playAllBtn.addEventListener('click', playAllArtistSongs);
         }
 
-        /* Artist profile: shuffle */
+        /* ---- Artist profile: shuffle ---- */
         const shuffleBtn = document.getElementById('artist-shuffle-btn');
         if (shuffleBtn) {
             shuffleBtn.addEventListener('click', () => {
@@ -449,44 +458,9 @@ window.Pages = (function () {
             });
         }
 
-                /* Artist profile: follow button — EXPLICIT binding */
-        const followBtnEl = document.getElementById('artist-follow-btn');
-        if (followBtnEl && !followBtnEl._followBound) {
-            followBtnEl._followBound = true;
+        /* ---- Artist profile: follow button is handled by Follows module ---- */
 
-            followBtnEl.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-
-                const artistName = followBtnEl.dataset.artistName
-                    || document.getElementById('artist-profile-name')?.textContent?.trim()
-                    || '';
-                const artistImg = followBtnEl.dataset.artistImage
-                    || document.getElementById('artist-profile-img')?.src
-                    || '';
-
-                console.log('[Pages] Follow click:', artistName);
-
-                if (!artistName || !window.Follows) {
-                    console.warn('[Pages] Follow: missing artist or Follows module');
-                    return;
-                }
-
-                const nowFollowing = window.Follows.toggle(artistName, artistImg);
-
-                followBtnEl.classList.toggle('following', nowFollowing);
-                followBtnEl.innerHTML = nowFollowing
-                    ? '<i class="fas fa-check"></i> Following'
-                    : '<i class="fas fa-plus"></i> Follow';
-
-                if (window.BottomNav && window.BottomNav.showToast) {
-                    window.BottomNav.showToast(
-                        nowFollowing ? `Following ${artistName}` : `Unfollowed ${artistName}`
-                    );
-                }
-            });
-        }
-        /* Playlist page cards */
+        /* ---- Playlist page cards ---- */
         document.querySelectorAll('.pl-card').forEach(card => {
             card.addEventListener('click', () => {
                 const idx = parseInt(card.getAttribute('data-play-target'), 10);
@@ -494,7 +468,7 @@ window.Pages = (function () {
             });
         });
 
-        /* Track recent plays */
+        /* ---- Track recent plays automatically ---- */
         const originalLoad = window.Player?.loadTrack;
         if (originalLoad && !originalLoad._wrapped) {
             const wrapped = function (idx, autoPlay) {
@@ -505,16 +479,20 @@ window.Pages = (function () {
                     filtered.unshift(idx);
                     localStorage.setItem('reverb_recent_plays', JSON.stringify(filtered.slice(0, 20)));
                 } catch (e) {}
+
+                /* Notify NowPlaying module */
+                try {
+                    window.dispatchEvent(new CustomEvent('player:track-changed', { detail: idx }));
+                } catch (e) {}
             };
             wrapped._wrapped = true;
             window.Player.loadTrack = wrapped;
         }
 
-        /* Liked page is auto-updated by the Likes module — nothing to do here */
-
         console.log('[Pages] Init complete.');
     }
 
+    /* ---------- PUBLIC API ---------- */
     return {
         init,
         navigate,

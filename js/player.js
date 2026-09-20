@@ -1,5 +1,5 @@
 /* ==================================================================
-   PLAYER.JS — Audio player core
+   PLAYER.JS — Audio player core + Mini Player
    Exposes: window.Player (with loadTrack, playTrack, pauseTrack, etc.)
 ================================================================== */
 
@@ -59,6 +59,19 @@ window.Player = (function () {
         return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
     }
 
+    /* ---------- Mini player show/hide ---------- */
+    function showMiniPlayer() {
+        const dock = document.getElementById('mini-player');
+        if (!dock) return;
+        dock.classList.add('visible');
+    }
+
+    function hideMiniPlayer() {
+        const dock = document.getElementById('mini-player');
+        if (!dock) return;
+        dock.classList.remove('visible');
+    }
+
     /* ---------- Load track ---------- */
     function loadTrack(index, autoPlay = true) {
         const tracks = window.tracks;
@@ -77,15 +90,32 @@ window.Player = (function () {
         audio.src = track.src;
         audio.load();
 
+        /* Show mini player */
+        showMiniPlayer();
+
+        /* Close any open playlist dropdown */
+        if (window.Playlists && window.Playlists.closePlaylistDropdown) {
+            window.Playlists.closePlaylistDropdown();
+        }
+
+        /* Notify NowPlaying module */
+        try {
+            window.dispatchEvent(new CustomEvent('player:track-changed', { detail: index }));
+        } catch (e) {}
+
         if (autoPlay) playTrack();
         else pauseTrack();
     }
 
     function playTrack() {
         isPlaying = true;
-        mainPlayBtn.classList.remove('fa-play-circle');
-        mainPlayBtn.classList.add('fa-pause-circle');
-        mainPlayBtn.style.color = '#b8a8e0';
+
+        /* Sync all play buttons (mini + desktop) */
+        document.querySelectorAll('#main-play-btn, #main-play-btn-desktop').forEach(btn => {
+            btn.classList.remove('fa-play-circle');
+            btn.classList.add('fa-pause-circle');
+            btn.style.color = '#b8a8e0';
+        });
 
         const playPromise = audio.play();
         if (playPromise !== undefined) {
@@ -98,9 +128,13 @@ window.Player = (function () {
 
     function pauseTrack() {
         isPlaying = false;
-        mainPlayBtn.classList.remove('fa-pause-circle');
-        mainPlayBtn.classList.add('fa-play-circle');
-        mainPlayBtn.style.color = '#ffffff';
+
+        document.querySelectorAll('#main-play-btn, #main-play-btn-desktop').forEach(btn => {
+            btn.classList.remove('fa-pause-circle');
+            btn.classList.add('fa-play-circle');
+            btn.style.color = '#ffffff';
+        });
+
         audio.pause();
         stopSynthTone();
     }
@@ -130,43 +164,84 @@ window.Player = (function () {
 
         if (!audio) return;
 
-        /* Play / Pause */
-        mainPlayBtn.addEventListener('click', togglePlay);
+        /* ---------- Play / Pause (mini + desktop) ---------- */
+        if (mainPlayBtn) mainPlayBtn.addEventListener('click', togglePlay);
 
-        /* Prev / Next */
-        prevBtn.addEventListener('click', () => {
+        const mainPlayBtnDesktop = document.getElementById('main-play-btn-desktop');
+        if (mainPlayBtnDesktop) mainPlayBtnDesktop.addEventListener('click', togglePlay);
+
+        /* ---------- Prev / Next (mini + desktop) ---------- */
+        if (prevBtn) prevBtn.addEventListener('click', () => {
             if (isShuffle) loadTrack(Math.floor(Math.random() * window.tracks.length));
             else loadTrack(currentTrackIndex - 1);
         });
 
-        nextBtn.addEventListener('click', () => {
+        if (nextBtn) nextBtn.addEventListener('click', () => {
             if (isShuffle) loadTrack(Math.floor(Math.random() * window.tracks.length));
             else loadTrack(currentTrackIndex + 1);
         });
 
-        /* Repeat / Shuffle */
-        repeatBtn.addEventListener('click', () => {
+        const prevBtnDesktop = document.getElementById('prev-btn-desktop');
+        if (prevBtnDesktop) prevBtnDesktop.addEventListener('click', () => {
+            if (isShuffle) loadTrack(Math.floor(Math.random() * window.tracks.length));
+            else loadTrack(currentTrackIndex - 1);
+        });
+
+        const nextBtnDesktop = document.getElementById('next-btn-desktop');
+        if (nextBtnDesktop) nextBtnDesktop.addEventListener('click', () => {
+            if (isShuffle) loadTrack(Math.floor(Math.random() * window.tracks.length));
+            else loadTrack(currentTrackIndex + 1);
+        });
+
+        /* ---------- Repeat ---------- */
+        if (repeatBtn) repeatBtn.addEventListener('click', () => {
             isRepeat = !isRepeat;
             repeatBtn.classList.toggle('active', isRepeat);
         });
 
-        shuffleBtn.addEventListener('click', () => {
+        /* ---------- Shuffle (main + mini sync) ---------- */
+        if (shuffleBtn) shuffleBtn.addEventListener('click', () => {
             isShuffle = !isShuffle;
             shuffleBtn.classList.toggle('active', isShuffle);
+            const miniShuffleBtn = document.getElementById('mini-shuffle-btn');
+            if (miniShuffleBtn) miniShuffleBtn.classList.toggle('active', isShuffle);
         });
 
-        /* Time update */
+        /* ---------- Mini shuffle button — mirrors main ---------- */
+        const miniShuffleBtn = document.getElementById('mini-shuffle-btn');
+        if (miniShuffleBtn) {
+            miniShuffleBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (shuffleBtn) {
+                    shuffleBtn.click();
+                } else {
+                    isShuffle = !isShuffle;
+                    miniShuffleBtn.classList.toggle('active', isShuffle);
+                }
+                console.log('[Player] Mini shuffle toggled. isShuffle:', isShuffle);
+            });
+        }
+
+        /* ---------- Time update → progress (mini + desktop) ---------- */
         audio.addEventListener('timeupdate', () => {
-            if (audio.duration) {
-                const pct = (audio.currentTime / audio.duration) * 100;
-                progressFill.style.width = pct + '%';
-                progressSlider.value = pct;
-                currTimeSpan.textContent = formatTime(audio.currentTime);
-                totalTimeSpan.textContent = formatTime(audio.duration);
-            }
+            if (!audio.duration) return;
+            const pct = (audio.currentTime / audio.duration) * 100;
+            const pctStr = pct + '%';
+
+            /* Desktop progress */
+            if (progressFill) progressFill.style.width = pctStr;
+            if (progressSlider) progressSlider.value = pct;
+            if (currTimeSpan) currTimeSpan.textContent = formatTime(audio.currentTime);
+            if (totalTimeSpan) totalTimeSpan.textContent = formatTime(audio.duration);
+
+            /* Mini progress (top of mini player) */
+            const miniFill = document.getElementById('progress-fill');
+            const miniSlider = document.getElementById('progress-slider');
+            if (miniFill) miniFill.style.width = pctStr;
+            if (miniSlider) miniSlider.value = pct;
         });
 
-        /* Ended */
+        /* ---------- Ended ---------- */
         audio.addEventListener('ended', () => {
             if (isRepeat) {
                 audio.currentTime = 0;
@@ -176,26 +251,50 @@ window.Player = (function () {
             }
         });
 
-        /* Progress scrub */
-        progressSlider.addEventListener('input', (e) => {
-            const pct = e.target.value;
-            progressFill.style.width = pct + '%';
-            if (audio.duration) audio.currentTime = (pct / 100) * audio.duration;
-        });
+        /* ---------- Progress scrub (mini) ---------- */
+        if (progressSlider) {
+            progressSlider.addEventListener('input', (e) => {
+                const pct = e.target.value;
+                if (progressFill) progressFill.style.width = pct + '%';
+                if (audio.duration) audio.currentTime = (pct / 100) * audio.duration;
+            });
+        }
 
-        /* Volume */
-        volumeSlider.addEventListener('input', (e) => {
-            audio.volume = e.target.value;
-            if (audio.volume === 0) volumeBtn.className = 'fas fa-volume-xmark';
-            else if (audio.volume < 0.5) volumeBtn.className = 'fas fa-volume-low';
-            else volumeBtn.className = 'fas fa-volume-high';
-        });
+        const progressSliderDesktop = document.getElementById('progress-slider-desktop');
+        if (progressSliderDesktop) {
+            progressSliderDesktop.addEventListener('input', (e) => {
+                const pct = e.target.value;
+                if (progressFill) progressFill.style.width = pct + '%';
+                if (audio.duration) audio.currentTime = (pct / 100) * audio.duration;
+            });
+        }
 
-        volumeBtn.addEventListener('click', () => {
-            isMuted = !isMuted;
-            audio.muted = isMuted;
-            volumeBtn.className = isMuted ? 'fas fa-volume-xmark' : 'fas fa-volume-high';
-        });
+        /* ---------- Volume ---------- */
+        if (volumeSlider) {
+            volumeSlider.addEventListener('input', (e) => {
+                audio.volume = e.target.value;
+                if (audio.volume === 0) volumeBtn.className = 'fas fa-volume-xmark';
+                else if (audio.volume < 0.5) volumeBtn.className = 'fas fa-volume-low';
+                else volumeBtn.className = 'fas fa-volume-high';
+            });
+        }
+
+        if (volumeBtn) {
+            volumeBtn.addEventListener('click', () => {
+                isMuted = !isMuted;
+                audio.muted = isMuted;
+                volumeBtn.className = isMuted ? 'fas fa-volume-xmark' : 'fas fa-volume-high';
+            });
+        }
+
+        /* ---------- Click on mini player LEFT → open full screen player ---------- */
+        const miniLeft = document.getElementById('mini-player-left');
+        if (miniLeft) {
+            miniLeft.addEventListener('click', (e) => {
+                if (e.target.closest('.mini-controls') || e.target.closest('.player-right')) return;
+                if (window.NowPlaying) window.NowPlaying.open();
+            });
+        }
     }
 
     /* ---------- Public API ---------- */
@@ -205,6 +304,8 @@ window.Player = (function () {
         playTrack,
         pauseTrack,
         togglePlay,
+        showMiniPlayer,
+        hideMiniPlayer,
         getIndex: () => currentTrackIndex,
         setIndex: (i) => { currentTrackIndex = i; }
     };

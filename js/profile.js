@@ -23,16 +23,24 @@ window.Profile = (function () {
     function handleMenuClick(action) {
         switch (action) {
             case 'add-account':
-                console.log('[Profile] → Add Account clicked');
+                if (window.Accounts) window.Accounts.open();
+                break;
+            case 'edit-profile':
+                if (window.ProfileEdit) window.ProfileEdit.openPage();
+                break;
+            case 'following':
+                if (window.Follows) window.Follows.openPage();
                 break;
             case 'recent':
-                console.log('[Profile] → Recent clicked');
+                if (window.Pages) window.Pages.navigate('recent');
                 break;
             case 'updates':
-                console.log('[Profile] → Your Updates clicked');
+                if (window.BottomNav && window.BottomNav.showToast) {
+                    window.BottomNav.showToast('3 new updates ✨');
+                }
                 break;
             case 'settings':
-                console.log('[Profile] → Settings & Privacy clicked');
+                if (window.Settings) window.Settings.openPage();
                 break;
         }
         closeDropdown();

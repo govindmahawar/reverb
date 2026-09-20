@@ -1,48 +1,15 @@
 /* ==================================================================
-   BOTTOM-NAV.JS — Mobile bottom navigation with page switching
-   Home · Search · Library · Premium · Create
-   Exposes: window.BottomNav
+   BOTTOM-NAV.JS — Mobile bottom navigation + Library tabs + Search
+   Delegates page switching to window.Pages
+   Exposes: window.BottomNav → { init, showToast }
 ================================================================== */
 
 window.BottomNav = (function () {
     let navItems;
 
-    /* ---------- Helpers ---------- */
-    function scrollToTop() {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function resetFilters() {
-        document.querySelectorAll('.music-card').forEach(c => c.style.display = '');
-        document.querySelectorAll('.song-row').forEach(r => r.style.display = '');
-    }
-
-    /* Remove all page classes */
-    function clearAllPages() {
-        document.body.classList.remove('page-library', 'page-search');
-    }
-
-    /* Switch to a page: 'home' | 'library' | 'search' */
-    function switchPage(page) {
-        clearAllPages();
-
-        if (page === 'library') {
-            document.body.classList.add('page-library');
-        } else if (page === 'search') {
-            document.body.classList.add('page-search');
-            /* Auto-focus the search input */
-            setTimeout(() => {
-                const input = document.getElementById('mobile-search-input');
-                if (input) input.focus();
-            }, 180);
-        }
-        /* 'home' → no class, shows default home content */
-
-        /* Scroll to top on every page change */
-        scrollToTop();
-    }
-
-    /* ---------- Tiny toast ---------- */
+    /* ================================================================
+       TINY TOAST
+    ================================================================ */
     function showToast(message) {
         let toast = document.getElementById('reverb-toast');
         if (!toast) {
@@ -79,80 +46,9 @@ window.BottomNav = (function () {
         }, 1800);
     }
 
-    /* ---------- Handle a bottom-nav button ---------- */
-    function handleNav(navKey) {
-        switch (navKey) {
-
-            case 'home':
-                resetFilters();
-                if (window.Search && window.Search.clear) window.Search.clear();
-                switchPage('home');
-                break;
-
-            case 'search':
-                switchPage('search');
-                break;
-
-            case 'library':
-                switchPage('library');
-                break;
-
-            case 'premium':
-                showToast('Premium — coming soon ✨');
-                break;
-
-            case 'create':
-                const openModalBtn = document.getElementById('btn-open-playlist-modal');
-                if (openModalBtn) openModalBtn.click();
-                break;
-        }
-    }
-
-    /* ---------- Wire up library tabs ---------- */
-    function initLibraryTabs() {
-        const tabs = document.querySelectorAll('.library-tab');
-        const contents = document.querySelectorAll('.library-tab-content');
-
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                tabs.forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-
-                const key = tab.getAttribute('data-tab');
-                contents.forEach(c => {
-                    c.style.display = (c.getAttribute('data-content') === key) ? 'flex' : 'none';
-                });
-            });
-        });
-
-        /* Library item clicks → play a track */
-        document.querySelectorAll('.library-item, .library-liked-card').forEach(item => {
-            item.addEventListener('click', () => {
-                const target = item.getAttribute('data-play-target');
-                if (target === 'liked') {
-                    /* Switch to the Liked tab */
-                    const likedTab = document.querySelector('.library-tab[data-tab="liked"]');
-                    if (likedTab) likedTab.click();
-                    return;
-                }
-                const idx = parseInt(target, 10);
-                if (!isNaN(idx) && window.Player) {
-                    window.Player.loadTrack(idx, true);
-                }
-            });
-        });
-
-        /* Library add button → open create modal */
-        const addBtn = document.getElementById('library-add-btn');
-        if (addBtn) {
-            addBtn.addEventListener('click', () => {
-                const openModalBtn = document.getElementById('btn-open-playlist-modal');
-                if (openModalBtn) openModalBtn.click();
-            });
-        }
-    }
-
-    /* ---------- Wire up mobile search page ---------- */
+    /* ================================================================
+       SEARCH PAGE WIRING
+    ================================================================ */
     function initSearchPage() {
         const input = document.getElementById('mobile-search-input');
         const clearBtn = document.getElementById('mobile-search-clear');
@@ -161,14 +57,9 @@ window.BottomNav = (function () {
         input.addEventListener('input', (e) => {
             const q = e.target.value;
             if (clearBtn) clearBtn.classList.toggle('visible', q.trim().length > 0);
-
-            /* Search.filter() also builds + shows live suggestions */
-            if (window.Search && window.Search.filter) {
-                window.Search.filter(q);
-            }
+            if (window.Search && window.Search.filter) window.Search.filter(q);
         });
 
-        /* Press Enter → dismiss keyboard, keep suggestions */
         input.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 e.preventDefault();
@@ -185,7 +76,7 @@ window.BottomNav = (function () {
             });
         }
 
-        /* Category tiles → toast for now */
+        /* Search category tiles */
         document.querySelectorAll('.search-cat').forEach(cat => {
             cat.addEventListener('click', () => {
                 const name = cat.querySelector('span')?.textContent || 'Category';
@@ -194,34 +85,208 @@ window.BottomNav = (function () {
         });
     }
 
-    /* ---------- Init ---------- */
+    /* ================================================================
+       LIBRARY → LIKED TAB RENDERER
+       Renders liked songs directly inside the Library's Liked tab
+    ================================================================ */
+    function renderLibraryLiked() {
+        const container = document.querySelector('.library-tab-content[data-content="liked"]');
+        if (!container) return;
+
+        const likedIds = (window.Likes && window.Likes.getAll) ? window.Likes.getAll() : [];
+        const tracks = window.tracks || [];
+
+        /* Empty state */
+        if (!likedIds.length) {
+            container.innerHTML = `
+                <div class="library-empty">
+                    <i class="fas fa-heart"></i>
+                    <p>Songs you like will appear here</p>
+                    <span>Tap the heart on any song to save it</span>
+                </div>
+            `;
+            return;
+        }
+
+        const likedTracks = likedIds
+            .map(id => {
+                const track = tracks.find(t => t.id === id);
+                if (!track) return null;
+                return { track, idx: tracks.indexOf(track) };
+            })
+            .filter(Boolean);
+
+        container.innerHTML = likedTracks.map(({ track, idx }) => `
+            <div class="library-song-item" data-track-index="${idx}" data-track-id="${track.id}">
+                <div class="library-song-thumb">
+                    <img src="${track.art}" alt="">
+                </div>
+                <div class="library-song-info">
+                    <span class="library-song-title">${track.title}</span>
+                    <span class="library-song-artist">${track.artist}</span>
+                </div>
+                <i class="fas fa-heart song-like active" data-track-id="${track.id}"></i>
+            </div>
+        `).join('');
+
+        /* Wire click → play song */
+        container.querySelectorAll('.library-song-item').forEach(row => {
+            row.addEventListener('click', (e) => {
+                if (e.target.classList.contains('song-like')) return;
+                const idx = parseInt(row.getAttribute('data-track-index'), 10);
+                if (!isNaN(idx) && window.Player) {
+                    window.Player.loadTrack(idx, true);
+                }
+            });
+        });
+
+        /* Sync heart visual state */
+        if (window.Likes && window.Likes.syncAllHearts) {
+            window.Likes.syncAllHearts(container);
+        }
+    }
+
+    /* ================================================================
+       LIBRARY PAGE TABS
+    ================================================================ */
+    function initLibraryTabs() {
+        const tabs = document.querySelectorAll('.library-tab');
+        const contents = document.querySelectorAll('.library-tab-content');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                const key = tab.getAttribute('data-tab');
+                contents.forEach(c => {
+                    c.style.display = (c.getAttribute('data-content') === key) ? 'flex' : 'none';
+                });
+
+                /* NEW: Render liked songs when Liked tab is selected */
+                if (key === 'liked') {
+                    renderLibraryLiked();
+                }
+            });
+        });
+
+        /* If Liked tab is already active on load, render immediately */
+        const activeTab = document.querySelector('.library-tab.active');
+        if (activeTab && activeTab.getAttribute('data-tab') === 'liked') {
+            renderLibraryLiked();
+        }
+
+        /* Library items → play track OR open artist profile */
+        document.querySelectorAll('.library-item, .library-liked-card').forEach(item => {
+            if (item._libBound) return;
+            item._libBound = true;
+
+            item.addEventListener('click', () => {
+                const target = item.getAttribute('data-play-target');
+
+                /* 1) Liked Songs card → open Liked tab */
+                if (target === 'liked') {
+                    const likedTab = document.querySelector('.library-tab[data-tab="liked"]');
+                    if (likedTab) likedTab.click();
+                    return;
+                }
+
+                /* 2) Artist item → open artist profile */
+                const isArtistItem = item.querySelector('.library-artist-art') !== null;
+                if (isArtistItem) {
+                    const artistName = item.querySelector('.library-item-title')?.textContent?.trim();
+                    const artistImg = item.querySelector('.library-artist-art img')?.src;
+                    console.log('[BottomNav] Artist item clicked:', artistName);
+
+                    if (artistName && window.Pages && window.Pages.openArtistProfile) {
+                        window.Pages.openArtistProfile(artistName, {
+                            from: 'library',
+                            fallbackImage: artistImg
+                        });
+                    }
+                    return;
+                }
+
+                /* 3) Playlist / Album → play track */
+                const idx = parseInt(target, 10);
+                if (!isNaN(idx) && window.Player) {
+                    window.Player.loadTrack(idx, true);
+                }
+            });
+        });
+
+        /* Library add button → open create playlist modal */
+        const addBtn = document.getElementById('library-add-btn');
+        if (addBtn) {
+            addBtn.addEventListener('click', () => {
+                const openModalBtn = document.getElementById('btn-open-playlist-modal');
+                if (openModalBtn) openModalBtn.click();
+            });
+        }
+
+        /* Re-render liked tab when likes change (only if visible) */
+        window.addEventListener('likes:updated', () => {
+            const libLiked = document.querySelector('.library-tab-content[data-content="liked"]');
+            if (libLiked && libLiked.style.display !== 'none') {
+                renderLibraryLiked();
+            }
+        });
+    }
+
+    /* ================================================================
+       BOTTOM NAV HANDLER
+    ================================================================ */
+    function handleNav(navKey) {
+        switch (navKey) {
+            case 'home':
+                if (window.Pages) window.Pages.navigate('home');
+                break;
+            case 'search':
+                if (window.Pages) window.Pages.navigate('search');
+                break;
+            case 'library':
+                if (window.Pages) window.Pages.navigate('library');
+                break;
+            case 'premium':
+                showToast('Premium — coming soon ✨');
+                break;
+            case 'create':
+                const openModalBtn = document.getElementById('btn-open-playlist-modal');
+                if (openModalBtn) openModalBtn.click();
+                break;
+        }
+    }
+
+    /* ================================================================
+       INIT
+    ================================================================ */
     function init() {
         navItems = document.querySelectorAll('.mbn-item');
         if (!navItems.length) return;
 
         navItems.forEach(item => {
             item.addEventListener('mousedown', (e) => e.preventDefault());
-
             item.addEventListener('click', () => {
                 navItems.forEach(i => i.classList.remove('active'));
                 item.classList.add('active');
                 item.blur();
-
                 const navKey = item.getAttribute('data-nav');
                 handleNav(navKey);
             });
         });
 
-        /* Ensure Home starts active */
+        /* Mark Home as active on load */
         const homeItem = document.querySelector('.mbn-item[data-nav="home"]');
         if (homeItem) homeItem.classList.add('active');
 
         initLibraryTabs();
         initSearchPage();
 
-        /* Default page: home (no class) */
-        clearAllPages();
+        console.log('[BottomNav] Initialized.');
     }
 
-    return { init, showToast, switchPage };
+    return {
+        init,
+        showToast,
+        renderLibraryLiked
+    };
 })();

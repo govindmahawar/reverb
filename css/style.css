@@ -2910,24 +2910,30 @@ html, body {
 }
 
 /* ================================================================
-   MOBILE ONLY — show library + search pages, hide home when needed
+   MOBILE ONLY — page visibility rules
+   IMPORTANT: We ONLY hide .hero/.section-head/.music-grid/.song-list.
+   We NEVER hide entire <section> pages, so page switching works on mobile.
 ================================================================ */
 @media (max-width: 768px) {
 
-    /* When a page is active, hide the home content */
+    /* When library page is active, hide home content */
     body.page-library .hero,
     body.page-library .section-head,
     body.page-library .music-grid,
-    body.page-library .song-list,
-    body.page-search .hero,
-    body.page-search .section-head,
-    body.page-search .music-grid,
-    body.page-search .song-list {
+    body.page-library .song-list {
         display: none !important;
     }
 
     body.page-library .library-page {
         display: flex;
+    }
+
+    /* When search page is active, hide home content */
+    body.page-search .hero,
+    body.page-search .section-head,
+    body.page-search .music-grid,
+    body.page-search .song-list {
+        display: none !important;
     }
 
     body.page-search .search-page {
@@ -3116,4 +3122,1524 @@ html, body {
     .search-page.has-suggestions .search-page-body {
         display: none;
     }
+}
+/* ==================================================================
+   19. GENERIC PAGES — Explore, Artists, Playlists, Liked,
+       Recently Played, Downloads
+================================================================== */
+
+/* All pages hidden by default — JS toggles via body class */
+.explore-page,
+.artists-page,
+.playlists-page,
+.liked-page,
+.recent-page,
+.downloads-page {
+    display: none;
+    flex-direction: column;
+    gap: 22px;
+    padding: 4px 2px 20px 2px;
+    animation: fadeInUp 0.28s ease-out;
+}
+
+/* Show active page (body class driven) */
+body.page-explore .explore-page,
+body.page-artists .artists-page,
+body.page-playlists .playlists-page,
+body.page-liked .liked-page,
+body.page-recent .recent-page,
+body.page-downloads .downloads-page {
+    display: flex;
+}
+
+/* When any page is active, hide home content */
+body.page-explore .hero,
+body.page-explore .section-head,
+body.page-explore .music-grid,
+body.page-explore .song-list,
+body.page-artists .hero,
+body.page-artists .section-head,
+body.page-artists .music-grid,
+body.page-artists .song-list,
+body.page-playlists .hero,
+body.page-playlists .section-head,
+body.page-playlists .music-grid,
+body.page-playlists .song-list,
+body.page-liked .hero,
+body.page-liked .section-head,
+body.page-liked .music-grid,
+body.page-liked .song-list,
+body.page-recent .hero,
+body.page-recent .section-head,
+body.page-recent .music-grid,
+body.page-recent .song-list,
+body.page-downloads .hero,
+body.page-downloads .section-head,
+body.page-downloads .music-grid,
+body.page-downloads .song-list {
+    display: none !important;
+}
+
+/* ================================================================
+   PAGE HEADER
+================================================================ */
+.page-header {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 4px 4px 8px 4px;
+}
+
+.page-header h2 {
+    font-size: 1.65rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: #ffffff;
+    line-height: 1.1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.page-header p {
+    font-size: 0.82rem;
+    color: rgba(255, 255, 255, 0.5);
+    font-weight: 400;
+}
+
+/* ================================================================
+   EXPLORE PAGE
+================================================================ */
+.explore-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.explore-title {
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: -0.02em;
+    padding: 0 4px;
+}
+
+.explore-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+    padding: 0 4px;
+}
+
+.explore-card {
+    aspect-ratio: 1.5 / 1;
+    border-radius: 14px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 0.88rem;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    -webkit-tap-highlight-color: transparent;
+    box-shadow: 0 8px 22px -10px rgba(0, 0, 0, 0.5);
+}
+
+.explore-card:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 14px 30px -10px rgba(0, 0, 0, 0.6);
+}
+
+.explore-card:active {
+    transform: scale(0.98);
+}
+
+.explore-card i {
+    font-size: 1.6rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.explore-card span {
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    z-index: 2;
+}
+
+/* ================================================================
+   ARTISTS PAGE
+================================================================ */
+.artists-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 16px;
+    padding: 0 4px;
+}
+
+.artist-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 10px;
+    border-radius: 14px;
+    background: #141624;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.artist-card:hover {
+    transform: translateY(-4px);
+    background: #191b2e;
+    border-color: rgba(184, 168, 224, 0.25);
+    box-shadow: 0 14px 30px -10px rgba(0, 0, 0, 0.6);
+}
+
+.artist-card:active {
+    transform: scale(0.98);
+}
+
+.artist-art {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow: 0 10px 24px -8px #6d5e9e80;
+    background: #1a1c2a;
+}
+
+.artist-art img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.artist-name {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #ffffff;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+.artist-meta {
+    font-size: 0.72rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* ================================================================
+   PLAYLISTS PAGE
+================================================================ */
+.playlists-page-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 16px;
+    padding: 0 4px;
+}
+
+.pl-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    border-radius: 14px;
+    background: #141624;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.pl-card:hover {
+    transform: translateY(-4px);
+    background: #191b2e;
+    border-color: rgba(184, 168, 224, 0.25);
+    box-shadow: 0 14px 30px -10px rgba(0, 0, 0, 0.6);
+}
+
+.pl-card:active {
+    transform: scale(0.98);
+}
+
+.pl-art {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 1.8rem;
+    box-shadow: 0 8px 20px -8px #00000080;
+}
+
+.pl-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #ffffff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pl-meta {
+    font-size: 0.72rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* ================================================================
+   LIKED / RECENT / DOWNLOADS LISTS
+================================================================ */
+.liked-list,
+.recent-list,
+.downloads-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 0 4px;
+}
+
+/* Reuse the existing .song-row style, so nothing extra needed */
+
+/* ================================================================
+   RESPONSIVE
+================================================================ */
+@media (max-width: 768px) {
+    .explore-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .artists-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .playlists-page-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .explore-card i {
+        font-size: 1.35rem;
+    }
+
+    .explore-card span {
+        font-size: 0.85rem;
+    }
+
+    .page-header h2 {
+        font-size: 1.4rem;
+    }
+
+    .artist-art {
+        width: 78px;
+        height: 78px;
+    }
+}
+
+@media (max-width: 480px) {
+    .page-header h2 {
+        font-size: 1.25rem;
+    }
+
+    .page-header p {
+        font-size: 0.76rem;
+    }
+
+    .explore-card i {
+        font-size: 1.2rem;
+    }
+
+    .explore-card span {
+        font-size: 0.8rem;
+    }
+}
+
+/* ==================================================================
+   20. ARTIST PROFILE PAGE — Works on BOTH desktop & mobile
+================================================================== */
+
+.artist-profile-page {
+    display: none;
+    flex-direction: column;
+    gap: 22px;
+    padding: 4px 2px 20px 2px;
+    animation: fadeInUp 0.28s ease-out;
+}
+
+/* ---- Active state (NO media query — works everywhere) ---- */
+body.page-artist-profile .artist-profile-page {
+    display: flex !important;
+}
+
+/* ---- Hide other pages + home when artist profile is active ---- */
+body.page-artist-profile .hero,
+body.page-artist-profile .section-head,
+body.page-artist-profile .music-grid,
+body.page-artist-profile .song-list,
+body.page-artist-profile .artists-page,
+body.page-artist-profile .explore-page,
+body.page-artist-profile .playlists-page,
+body.page-artist-profile .liked-page,
+body.page-artist-profile .recent-page,
+body.page-artist-profile .downloads-page,
+body.page-artist-profile .search-page,
+body.page-artist-profile .library-page {
+    display: none !important;
+}
+
+/* ---- Back button ---- */
+.artist-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px 8px 12px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: rgba(255, 255, 255, 0.85);
+    font-family: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    cursor: pointer;
+    align-self: flex-start;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+    margin: 0 4px;
+}
+
+.artist-back-btn:hover,
+.artist-back-btn:active {
+    background: rgba(139, 122, 184, 0.2);
+    border-color: rgba(184, 168, 224, 0.35);
+    color: #ffffff;
+}
+
+.artist-back-btn i {
+    font-size: 0.78rem;
+}
+
+/* ---- Hero header ---- */
+.artist-profile-hero {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 4px 8px;
+    position: relative;
+}
+
+.artist-profile-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+    box-shadow:
+        0 20px 50px -18px #6d5e9e90,
+        0 0 0 3px rgba(184, 168, 224, 0.2);
+    background: #1a1c2a;
+}
+
+.artist-profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.artist-profile-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+    flex: 1;
+}
+
+.artist-profile-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    color: #b8a8e0;
+}
+
+.artist-profile-info h2 {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    color: #ffffff;
+    line-height: 1.05;
+    margin: 0;
+    word-break: break-word;
+    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.4);
+}
+
+.artist-profile-meta {
+    font-size: 0.82rem;
+    color: rgba(255, 255, 255, 0.55);
+    font-weight: 500;
+}
+
+/* ---- Actions ---- */
+.artist-profile-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 8px;
+    flex-wrap: wrap;
+}
+
+.artist-play-all-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, #8b7ab8, #6d5e9e);
+    border: none;
+    color: #ffffff;
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 0.88rem;
+    padding: 12px 30px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 14px 28px -10px #6d5e9e90, inset 0 1px 0 #ffffff30;
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+}
+
+.artist-play-all-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 18px 34px -10px #6d5e9ea0;
+}
+
+.artist-play-all-btn:active {
+    transform: scale(0.98);
+}
+
+.artist-shuffle-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    font-size: 0.92rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+}
+
+.artist-shuffle-btn:hover {
+    background: rgba(139, 122, 184, 0.25);
+    transform: scale(1.05);
+}
+
+.artist-shuffle-btn.active {
+    background: #8b7ab8;
+    border-color: #b8a8e0;
+    color: #ffffff;
+}
+
+.artist-follow-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 22px;
+    border-radius: 10px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+    margin-left: auto;
+}
+
+.artist-follow-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.35);
+}
+
+.artist-follow-btn.following {
+    background: rgba(139, 122, 184, 0.25);
+    border-color: rgba(184, 168, 224, 0.5);
+    color: #d8ccf0;
+}
+
+/* ---- Section title ---- */
+.artist-profile-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 0 4px;
+}
+
+.artist-section-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: -0.02em;
+    padding: 0 4px;
+}
+
+/* ---- Songs list ---- */
+.artist-songs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.artist-songs-list .song-row {
+    background: #141624;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 10px;
+    padding: 12px 16px;
+    gap: 14px;
+}
+
+.artist-songs-list .song-row:hover {
+    background: #191b2e;
+    border-color: rgba(184, 168, 224, 0.3);
+    transform: translateX(4px);
+}
+
+.artist-songs-list .song-row .song-play {
+    width: 34px;
+    height: 34px;
+    font-size: 0.78rem;
+}
+
+/* ================================================================
+   TABLET (≤ 900px)
+================================================================ */
+@media (max-width: 900px) {
+    .artist-profile-avatar {
+        width: 100px;
+        height: 100px;
+    }
+
+    .artist-profile-info h2 {
+        font-size: 1.7rem;
+    }
+}
+
+/* ================================================================
+   MOBILE (≤ 768px) — EXPLICITLY override everything
+================================================================ */
+@media (max-width: 768px) {
+
+    /* 1) MAIN CONTENT PADDING */
+    body.page-artist-profile .main-content {
+        padding-bottom: 148px;
+    }
+
+    /* 2) ARTIST PROFILE PAGE — VISIBLE (highest priority) */
+    body.page-artist-profile .artist-profile-page {
+        display: flex !important;
+    }
+
+    /* 3) HIDE home + all other pages */
+    body.page-artist-profile .hero,
+    body.page-artist-profile .section-head,
+    body.page-artist-profile .music-grid,
+    body.page-artist-profile .song-list,
+    body.page-artist-profile .artists-page,
+    body.page-artist-profile .explore-page,
+    body.page-artist-profile .playlists-page,
+    body.page-artist-profile .liked-page,
+    body.page-artist-profile .recent-page,
+    body.page-artist-profile .downloads-page,
+    body.page-artist-profile .search-page,
+    body.page-artist-profile .library-page {
+        display: none !important;
+    }
+
+    /* 4) LAYOUT */
+    .artist-profile-page {
+        gap: 18px;
+        padding: 4px 0 16px 0;
+    }
+
+    .artist-back-btn {
+        padding: 7px 14px 7px 10px;
+        font-size: 0.76rem;
+        margin: 0 2px;
+    }
+
+    .artist-back-btn i {
+        font-size: 0.72rem;
+    }
+
+    .artist-profile-hero {
+        flex-direction: column;
+        text-align: center;
+        gap: 14px;
+        padding: 8px 4px 0 4px;
+    }
+
+    .artist-profile-avatar {
+        width: 112px;
+        height: 112px;
+        box-shadow:
+            0 16px 40px -14px #6d5e9e90,
+            0 0 0 3px rgba(184, 168, 224, 0.25);
+    }
+
+    .artist-profile-info {
+        align-items: center;
+        text-align: center;
+        gap: 4px;
+    }
+
+    .artist-profile-label {
+        font-size: 0.6rem;
+        letter-spacing: 1.1px;
+    }
+
+    .artist-profile-info h2 {
+        font-size: 1.55rem;
+        text-align: center;
+    }
+
+    .artist-profile-meta {
+        font-size: 0.74rem;
+    }
+
+    .artist-profile-actions {
+        padding: 0 4px;
+        gap: 10px;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+    }
+
+    .artist-play-all-btn {
+        padding: 11px 24px;
+        font-size: 0.82rem;
+        gap: 8px;
+        flex: 0 0 auto;
+    }
+
+    .artist-play-all-btn i {
+        font-size: 0.8rem;
+    }
+
+    .artist-shuffle-btn {
+        width: 42px;
+        height: 42px;
+        font-size: 0.86rem;
+        flex-shrink: 0;
+    }
+
+    .artist-follow-btn {
+        padding: 10px 18px;
+        font-size: 0.78rem;
+        gap: 6px;
+        margin-left: auto;
+        flex-shrink: 0;
+    }
+
+    .artist-follow-btn i {
+        font-size: 0.72rem;
+    }
+
+    .artist-section-title {
+        font-size: 0.98rem;
+        padding: 0 2px;
+    }
+
+    .artist-profile-section {
+        padding: 0 2px;
+        gap: 8px;
+    }
+
+    .artist-songs-list {
+        gap: 6px;
+    }
+
+    .artist-songs-list .song-row {
+        padding: 10px 12px;
+        gap: 10px;
+        border-radius: 10px;
+    }
+
+    .artist-songs-list .song-row .song-play {
+        width: 32px;
+        height: 32px;
+        font-size: 0.74rem;
+    }
+
+    .artist-songs-list .song-row .song-thumb {
+        width: 38px;
+        height: 38px;
+    }
+
+    .artist-songs-list .song-row .song-title {
+        font-size: 0.85rem;
+    }
+
+    .artist-songs-list .song-row .song-artist {
+        font-size: 0.72rem;
+    }
+
+    .artist-songs-list .song-row .song-album {
+        display: none;
+    }
+
+    .artist-songs-list .song-row .song-duration {
+        font-size: 0.72rem;
+        min-width: 40px;
+    }
+
+    .artist-songs-list .song-row .song-like {
+        font-size: 0.88rem;
+    }
+}
+
+/* ================================================================
+   SMALL PHONES (≤ 480px)
+================================================================ */
+@media (max-width: 480px) {
+
+    body.page-artist-profile .main-content {
+        padding-bottom: 140px;
+    }
+
+    body.page-artist-profile .artist-profile-page {
+        display: flex !important;
+    }
+
+    .artist-profile-avatar {
+        width: 96px;
+        height: 96px;
+    }
+
+    .artist-profile-info h2 {
+        font-size: 1.32rem;
+    }
+
+    .artist-play-all-btn {
+        padding: 10px 18px;
+        font-size: 0.78rem;
+        min-width: 110px;
+        justify-content: center;
+    }
+
+    .artist-shuffle-btn {
+        width: 38px;
+        height: 38px;
+        font-size: 0.8rem;
+    }
+
+    .artist-follow-btn {
+        padding: 9px 14px;
+        font-size: 0.74rem;
+    }
+
+    .artist-back-btn {
+        font-size: 0.72rem;
+        padding: 6px 12px 6px 9px;
+    }
+}
+
+/* ================================================================
+   TOUCH DEVICES
+================================================================ */
+@media (hover: none) and (pointer: coarse) {
+    .artist-songs-list .song-row:hover {
+        transform: none;
+    }
+
+    .artist-play-all-btn:hover {
+        transform: none;
+    }
+
+    .artist-shuffle-btn:hover {
+        transform: none;
+    }
+}
+
+/* ==================================================================
+   21. USER FEATURES — Profile Edit, Settings, Accounts, Following
+================================================================== */
+
+/* ================================================================
+   SHARED PAGE PATTERN
+================================================================== */
+.profile-edit-page,
+.settings-page,
+.followed-page {
+    display: none;
+    flex-direction: column;
+    gap: 22px;
+    padding: 4px 2px 20px 2px;
+    animation: fadeInUp 0.28s ease-out;
+}
+
+body.page-profile-edit .profile-edit-page,
+body.page-settings .settings-page,
+body.page-followed .followed-page {
+    display: flex !important;
+}
+
+/* Hide home + other pages when these are active */
+body.page-profile-edit .hero,
+body.page-profile-edit .section-head,
+body.page-profile-edit .music-grid,
+body.page-profile-edit .song-list,
+body.page-settings .hero,
+body.page-settings .section-head,
+body.page-settings .music-grid,
+body.page-settings .song-list,
+body.page-followed .hero,
+body.page-followed .section-head,
+body.page-followed .music-grid,
+body.page-followed .song-list {
+    display: none !important;
+}
+
+/* ================================================================
+   PROFILE EDIT PAGE
+================================================================== */
+.profile-edit-avatar-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+}
+
+.profile-edit-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #8b7ab8, #6d5e9e);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 2.6rem;
+    color: #ffffff;
+    box-shadow: 0 20px 50px -18px #6d5e9e90, inset 0 1px 0 #ffffff30;
+    overflow: hidden;
+    position: relative;
+}
+
+.profile-edit-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.profile-edit-avatar-btn {
+    background: rgba(139, 122, 184, 0.2);
+    border: 1px solid rgba(184, 168, 224, 0.35);
+    color: #d8ccf0;
+    font-family: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    padding: 9px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+}
+
+.profile-edit-avatar-btn:hover,
+.profile-edit-avatar-btn:active {
+    background: rgba(139, 122, 184, 0.35);
+    color: #ffffff;
+}
+
+.profile-edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 0 4px;
+    max-width: 560px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.7);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 12px 16px;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 0.92rem;
+    outline: none;
+    transition: border-color 0.2s ease, background 0.2s ease;
+    resize: vertical;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    border-color: rgba(184, 168, 224, 0.5);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.profile-edit-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 8px;
+}
+
+/* ================================================================
+   SETTINGS PAGE
+================================================================== */
+.settings-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 0 4px;
+    max-width: 640px;
+}
+
+.settings-group-title {
+    font-size: 0.98rem;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    padding: 4px 6px;
+}
+
+.settings-group-title i {
+    color: #b8a8e0;
+    font-size: 0.9rem;
+}
+
+.settings-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 16px;
+    background: #141624;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    margin-bottom: 6px;
+}
+
+.settings-item-label {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+    flex: 1;
+}
+
+.settings-item-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.settings-item-desc {
+    font-size: 0.74rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.settings-select {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    padding: 8px 32px 8px 12px;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 0.82rem;
+    outline: none;
+    cursor: pointer;
+    flex-shrink: 0;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23b8a8e0' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    transition: border-color 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.settings-select:focus {
+    border-color: rgba(184, 168, 224, 0.5);
+}
+
+.settings-select option {
+    background: #141624;
+    color: #ffffff;
+}
+
+/* Toggle switch */
+.settings-toggle {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 26px;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+.settings-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.settings-toggle-slider {
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 26px;
+    transition: background 0.25s ease;
+}
+
+.settings-toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    left: 3px;
+    top: 3px;
+    background: #ffffff;
+    border-radius: 50%;
+    transition: transform 0.25s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.settings-toggle input:checked + .settings-toggle-slider {
+    background: linear-gradient(135deg, #8b7ab8, #6d5e9e);
+}
+
+.settings-toggle input:checked + .settings-toggle-slider::before {
+    transform: translateX(22px);
+}
+
+.settings-reset {
+    padding: 12px 4px;
+    max-width: 640px;
+}
+
+.settings-reset-btn {
+    width: 100%;
+    justify-content: center;
+    background: rgba(232, 93, 158, 0.12);
+    border-color: rgba(232, 93, 158, 0.3);
+    color: #ff8ab8;
+}
+
+.settings-reset-btn:hover {
+    background: rgba(232, 93, 158, 0.2);
+    border-color: rgba(232, 93, 158, 0.5);
+    color: #ffffff;
+}
+
+.settings-reset-btn i {
+    color: inherit;
+}
+
+/* ================================================================
+   ACCOUNT LIST (inside Add Account modal)
+================================================================== */
+.account-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 16px;
+}
+
+.account-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.account-item:hover,
+.account-item:active {
+    background: rgba(139, 122, 184, 0.15);
+    border-color: rgba(184, 168, 224, 0.3);
+}
+
+.account-item.active {
+    background: rgba(139, 122, 184, 0.2);
+    border-color: rgba(184, 168, 224, 0.4);
+}
+
+.account-item-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #8b7ab8, #6d5e9e);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: #ffffff;
+    font-size: 0.95rem;
+    flex-shrink: 0;
+}
+
+.account-item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    flex: 1;
+}
+
+.account-item-name {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #ffffff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.account-item-email {
+    font-size: 0.72rem;
+    color: rgba(255, 255, 255, 0.5);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.account-item-check {
+    color: #b8a8e0;
+    font-size: 0.9rem;
+    display: none;
+}
+
+.account-item.active .account-item-check {
+    display: block;
+}
+
+.account-new-form {
+    padding-top: 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.account-new-form label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.6);
+    display: block;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.account-new-form input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    padding: 11px 14px;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 0.88rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.account-new-form input:focus {
+    border-color: rgba(184, 168, 224, 0.5);
+    background: rgba(255, 255, 255, 0.09);
+}
+
+/* ================================================================
+   FOLLOWED ARTISTS PAGE
+================================================================== */
+.followed-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 16px;
+    padding: 0 4px;
+}
+
+.followed-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 10px;
+    border-radius: 14px;
+    background: #141624;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.followed-card:hover {
+    transform: translateY(-4px);
+    background: #191b2e;
+    border-color: rgba(184, 168, 224, 0.25);
+    box-shadow: 0 14px 30px -10px rgba(0, 0, 0, 0.6);
+}
+
+.followed-card:active {
+    transform: scale(0.98);
+}
+
+.followed-card-art {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow: 0 10px 24px -8px #6d5e9e80;
+    background: #1a1c2a;
+}
+
+.followed-card-art img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.followed-card-name {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #ffffff;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+.followed-card-meta {
+    font-size: 0.72rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* ================================================================
+   THEME: PURPLE HAZE
+================================================================== */
+body.theme-purple {
+    background: #14091e;
+}
+
+body.theme-purple .sidebar,
+body.theme-purple .brand {
+    background: #1c0f2b;
+}
+
+body.theme-purple .liquid-glass {
+    background: #1e1130;
+}
+
+/* ================================================================
+   THEME: DARKER
+================================================================== */
+body.theme-darker {
+    background: #04050a;
+}
+
+body.theme-darker .sidebar,
+body.theme-darker .brand {
+    background: #0a0c15;
+}
+
+body.theme-darker .liquid-glass {
+    background: #0d0f1a;
+}
+
+/* ================================================================
+   MOBILE
+================================================================== */
+@media (max-width: 768px) {
+    body.page-profile-edit .main-content,
+    body.page-settings .main-content,
+    body.page-followed .main-content {
+        padding-bottom: 148px;
+    }
+
+    .profile-edit-avatar {
+        width: 100px;
+        height: 100px;
+        font-size: 2.2rem;
+    }
+
+    .profile-edit-form {
+        padding: 0 2px;
+    }
+
+    .profile-edit-actions {
+        flex-direction: column;
+    }
+
+    .profile-edit-actions .btn-primary,
+    .profile-edit-actions .btn-secondary {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .settings-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .settings-select {
+        width: 100%;
+    }
+
+    .settings-toggle {
+        align-self: flex-start;
+    }
+
+    .followed-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .followed-card-art {
+        width: 78px;
+        height: 78px;
+    }
+}
+
+@media (max-width: 480px) {
+    .profile-edit-avatar {
+        width: 88px;
+        height: 88px;
+        font-size: 2rem;
+    }
+
+    .form-group input,
+    .form-group textarea {
+        padding: 11px 14px;
+        font-size: 0.88rem;
+    }
+}
+/* ==================================================================
+   22. LIBRARY LIKED TAB — song rows
+================================================================== */
+.library-song-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.18s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.library-song-item:hover,
+.library-song-item:active {
+    background: rgba(139, 122, 184, 0.12);
+}
+
+.library-song-thumb {
+    width: 46px;
+    height: 46px;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: #1a1c2a;
+    box-shadow: 0 4px 10px -4px #00000080;
+}
+
+.library-song-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.library-song-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+
+.library-song-title {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #ffffff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.library-song-artist {
+    font-size: 0.72rem;
+    color: rgba(255, 255, 255, 0.55);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.library-song-item .song-like {
+    font-size: 0.9rem;
+    color: #e85d9e;
+    flex-shrink: 0;
+    padding: 6px;
+    cursor: pointer;
+}
+
+.library-song-item .song-like:hover {
+    transform: scale(1.15);
 }

@@ -123,6 +123,11 @@
             <!-- topbar with Reverb homepage branding -->
             <div class="topbar">
                 <div class="topbar-left">
+                    <!-- Mobile hamburger -->
+                    <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu">
+                        <i class="fas fa-bars"></i>
+                    </button>
+
                     <div class="home-brand">
                         <svg class="reverb-wave-logo" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#b8a8e0" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M2 6c2.5 0 2.5 2.5 5 2.5s2.5-2.5 5-2.5 2.5 2.5 5 2.5 2.5-2.5 5-2.5"/>
@@ -156,6 +161,14 @@
                             <div class="profile-menu-item" data-action="add-account">
                                 <i class="fas fa-user-plus"></i>
                                 <span>Add Account</span>
+                            </div>
+                            <div class="profile-menu-item" data-action="edit-profile">
+                                <i class="fas fa-user-pen"></i>
+                                <span>Edit Profile</span>
+                            </div>
+                            <div class="profile-menu-item" data-action="following">
+                                <i class="fas fa-heart"></i>
+                                <span>Following</span>
                             </div>
                             <div class="profile-menu-item" data-action="recent">
                                 <i class="fas fa-clock-rotate-left"></i>
@@ -674,6 +687,442 @@
                     </div>
                 </div>
             </section>
+
+            <!-- ============================================
+                 EXPLORE PAGE
+            ============================================ -->
+            <section class="explore-page" id="explore-page">
+                <div class="page-header">
+                    <h2>Explore</h2>
+                    <p>Discover new sounds & moods</p>
+                </div>
+
+                <div class="explore-section">
+                    <h3 class="explore-title">Moods</h3>
+                    <div class="explore-grid">
+                        <div class="explore-card" style="background: linear-gradient(135deg, #5a4a8a, #3d3260);">
+                            <i class="fas fa-moon"></i>
+                            <span>Late Night</span>
+                        </div>
+                        <div class="explore-card" style="background: linear-gradient(135deg, #2a4a6e, #1a2f4a);">
+                            <i class="fas fa-cloud-sun"></i>
+                            <span>Morning Calm</span>
+                        </div>
+                        <div class="explore-card" style="background: linear-gradient(135deg, #6e3a5a, #4a253d);">
+                            <i class="fas fa-fire"></i>
+                            <span>Energetic</span>
+                        </div>
+                        <div class="explore-card" style="background: linear-gradient(135deg, #2a5a5a, #1a3d3d);">
+                            <i class="fas fa-brain"></i>
+                            <span>Deep Focus</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="explore-section">
+                    <h3 class="explore-title">Genres</h3>
+                    <div class="explore-grid">
+                        <div class="explore-card" style="background: linear-gradient(135deg, #8b5cf6, #6d28d9);">
+                            <i class="fas fa-guitar"></i>
+                            <span>Indie</span>
+                        </div>
+                        <div class="explore-card" style="background: linear-gradient(135deg, #ec4899, #be185d);">
+                            <i class="fas fa-microphone"></i>
+                            <span>Pop</span>
+                        </div>
+                        <div class="explore-card" style="background: linear-gradient(135deg, #06b6d4, #0e7490);">
+                            <i class="fas fa-water"></i>
+                            <span>Ambient</span>
+                        </div>
+                        <div class="explore-card" style="background: linear-gradient(135deg, #f59e0b, #b45309);">
+                            <i class="fas fa-drum"></i>
+                            <span>Lo-Fi</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================
+                 ARTISTS PAGE
+            ============================================ -->
+            <section class="artists-page" id="artists-page">
+                <div class="page-header">
+                    <h2>Artists</h2>
+                    <p>Voices you love</p>
+                </div>
+
+                <div class="artists-grid">
+                    <div class="artist-card" data-play-target="0">
+                        <div class="artist-art">
+                            <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=200&h=200&fit=crop" alt="Lumen & Echo">
+                        </div>
+                        <span class="artist-name">Lumen & Echo</span>
+                        <span class="artist-meta">12 songs</span>
+                    </div>
+                    <div class="artist-card" data-play-target="1">
+                        <div class="artist-art">
+                            <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=200&h=200&fit=crop" alt="Aurora Fields">
+                        </div>
+                        <span class="artist-name">Aurora Fields</span>
+                        <span class="artist-meta">8 songs</span>
+                    </div>
+                    <div class="artist-card" data-play-target="2">
+                        <div class="artist-art">
+                            <img src="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=200&h=200&fit=crop" alt="Kaya">
+                        </div>
+                        <span class="artist-name">Kaya</span>
+                        <span class="artist-meta">15 songs</span>
+                    </div>
+                    <div class="artist-card" data-play-target="3">
+                        <div class="artist-art">
+                            <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop" alt="Nocturne Club">
+                        </div>
+                        <span class="artist-name">Nocturne Club</span>
+                        <span class="artist-meta">10 songs</span>
+                    </div>
+                    <div class="artist-card" data-play-target="4">
+                        <div class="artist-art">
+                            <img src="https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=200&h=200&fit=crop" alt="Lumen">
+                        </div>
+                        <span class="artist-name">Lumen</span>
+                        <span class="artist-meta">6 songs</span>
+                    </div>
+                    <div class="artist-card" data-play-target="6">
+                        <div class="artist-art">
+                            <img src="https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=200&h=200&fit=crop" alt="Wren">
+                        </div>
+                        <span class="artist-name">Wren</span>
+                        <span class="artist-meta">9 songs</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================
+                 ARTIST PROFILE PAGE (dynamic content)
+            ============================================ -->
+            <section class="artist-profile-page" id="artist-profile-page">
+                <!-- Back button -->
+                <button class="artist-back-btn" id="artist-back-btn">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Artists</span>
+                </button>
+
+                <!-- Hero header -->
+                <div class="artist-profile-hero">
+                    <div class="artist-profile-avatar">
+                        <img src="" alt="" id="artist-profile-img">
+                    </div>
+                    <div class="artist-profile-info">
+                        <span class="artist-profile-label">Artist</span>
+                        <h2 id="artist-profile-name">Artist Name</h2>
+                        <span class="artist-profile-meta" id="artist-profile-meta">0 songs</span>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="artist-profile-actions">
+                    <button class="artist-play-all-btn" id="artist-play-all-btn">
+                        <i class="fas fa-play"></i>
+                        Play
+                    </button>
+                    <button class="artist-shuffle-btn" id="artist-shuffle-btn">
+                        <i class="fas fa-shuffle"></i>
+                    </button>
+                    <button class="artist-follow-btn" id="artist-follow-btn">
+                        <i class="fas fa-plus"></i>
+                        Follow
+                    </button>
+                </div>
+
+                <!-- Popular Songs -->
+                <div class="artist-profile-section">
+                    <h3 class="artist-section-title">Popular</h3>
+                    <div class="artist-songs-list" id="artist-songs-list"></div>
+                </div>
+
+                <!-- Empty state (if no songs) -->
+                <div class="library-empty" id="artist-empty" style="display:none;">
+                    <i class="fas fa-music"></i>
+                    <p>No songs available</p>
+                    <span>This artist has no tracks in the library yet</span>
+                </div>
+            </section>
+
+            <!-- ============================================
+                 PLAYLISTS PAGE
+            ============================================ -->
+            <section class="playlists-page" id="playlists-page">
+                <div class="page-header">
+                    <h2>Your Playlists</h2>
+                    <p>All your curated collections</p>
+                </div>
+
+                <div class="playlists-page-grid">
+                    <div class="pl-card" data-play-target="0">
+                        <div class="pl-art" style="background: linear-gradient(145deg, #5a4a8a, #3d3260);">
+                            <i class="fas fa-moon"></i>
+                        </div>
+                        <span class="pl-title">Night Drive</span>
+                        <span class="pl-meta">24 songs</span>
+                    </div>
+                    <div class="pl-card" data-play-target="1">
+                        <div class="pl-art" style="background: linear-gradient(145deg, #2a4a6e, #1a2f4a);">
+                            <i class="fas fa-cloud-sun"></i>
+                        </div>
+                        <span class="pl-title">Morning Dew</span>
+                        <span class="pl-meta">18 songs</span>
+                    </div>
+                    <div class="pl-card" data-play-target="2">
+                        <div class="pl-art" style="background: linear-gradient(145deg, #6e3a5a, #4a253d);">
+                            <i class="fas fa-headphones"></i>
+                        </div>
+                        <span class="pl-title">Focus Deep</span>
+                        <span class="pl-meta">32 songs</span>
+                    </div>
+                    <div class="pl-card" data-play-target="3">
+                        <div class="pl-art" style="background: linear-gradient(145deg, #2a5a5a, #1a3d3d);">
+                            <i class="fas fa-guitar"></i>
+                        </div>
+                        <span class="pl-title">Indie Folk</span>
+                        <span class="pl-meta">27 songs</span>
+                    </div>
+                    <div class="pl-card" data-play-target="4">
+                        <div class="pl-art" style="background: linear-gradient(145deg, #8b5cf6, #6d28d9);">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <span class="pl-title">Liked Songs</span>
+                        <span class="pl-meta">42 songs</span>
+                    </div>
+                    <div class="pl-card" data-play-target="5">
+                        <div class="pl-art" style="background: linear-gradient(145deg, #ec4899, #be185d);">
+                            <i class="fas fa-fire"></i>
+                        </div>
+                        <span class="pl-title">Workout Mix</span>
+                        <span class="pl-meta">30 songs</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================
+                 LIKED SONGS PAGE
+            ============================================ -->
+            <section class="liked-page" id="liked-page">
+                <div class="page-header">
+                    <h2><i class="fas fa-heart" style="color:#e85d9e;"></i> Liked Songs</h2>
+                    <p id="liked-count-text">0 songs</p>
+                </div>
+                <div class="liked-list" id="liked-list"></div>
+                <div class="library-empty" id="liked-empty">
+                    <i class="fas fa-heart"></i>
+                    <p>Songs you like will appear here</p>
+                    <span>Tap the heart on any song to save it</span>
+                </div>
+            </section>
+
+            <!-- ============================================
+                 RECENTLY PLAYED PAGE
+            ============================================ -->
+            <section class="recent-page" id="recent-page">
+                <div class="page-header">
+                    <h2>Recently Played</h2>
+                    <p>Your latest listens</p>
+                </div>
+                <div class="recent-list" id="recent-list"></div>
+                <div class="library-empty" id="recent-empty">
+                    <i class="fas fa-clock-rotate-left"></i>
+                    <p>No recent plays yet</p>
+                    <span>Start playing songs and they'll show up here</span>
+                </div>
+            </section>
+
+            <!-- ============================================
+                 DOWNLOADS PAGE
+            ============================================ -->
+            <section class="downloads-page" id="downloads-page">
+                <div class="page-header">
+                    <h2>Downloads</h2>
+                    <p>Saved for offline listening</p>
+                </div>
+                <div class="downloads-list" id="downloads-list"></div>
+                <div class="library-empty" id="downloads-empty">
+                    <i class="fas fa-download"></i>
+                    <p>No downloads yet</p>
+                    <span>Songs you download will appear here</span>
+                </div>
+            </section>
+
+            <!-- ============================================
+                 PROFILE EDIT PAGE
+            ============================================ -->
+            <section class="profile-edit-page" id="profile-edit-page">
+                <button class="artist-back-btn" id="profile-edit-back">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Back</span>
+                </button>
+
+                <div class="page-header">
+                    <h2>Edit Profile</h2>
+                    <p>Update your personal information</p>
+                </div>
+
+                <div class="profile-edit-avatar-wrap">
+                    <div class="profile-edit-avatar" id="profile-edit-avatar">A</div>
+                    <button class="profile-edit-avatar-btn" id="profile-change-avatar-btn">
+                        <i class="fas fa-camera"></i>
+                        Change Photo
+                    </button>
+                    <input type="file" id="profile-avatar-input" accept="image/*" hidden>
+                </div>
+
+                <div class="profile-edit-form">
+                    <div class="form-group">
+                        <label for="profile-input-name">Display Name</label>
+                        <input type="text" id="profile-input-name" placeholder="Your name">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="profile-input-email">Email Address</label>
+                        <input type="email" id="profile-input-email" placeholder="you@example.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="profile-input-bio">Bio</label>
+                        <textarea id="profile-input-bio" rows="3" placeholder="Tell us about yourself..."></textarea>
+                    </div>
+
+                    <div class="profile-edit-actions">
+                        <button class="btn-secondary" id="profile-edit-cancel">Cancel</button>
+                        <button class="btn-primary" id="profile-edit-save">
+                            <i class="fas fa-check"></i>
+                            Save Changes
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================
+                 SETTINGS PAGE
+            ============================================ -->
+            <section class="settings-page" id="settings-page">
+                <button class="artist-back-btn" id="settings-back">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Back</span>
+                </button>
+
+                <div class="page-header">
+                    <h2>Settings</h2>
+                    <p>Customize your Reverb experience</p>
+                </div>
+
+                <!-- Appearance -->
+                <div class="settings-group">
+                    <h3 class="settings-group-title">
+                        <i class="fas fa-palette"></i>
+                        Appearance
+                    </h3>
+
+                    <div class="settings-item">
+                        <div class="settings-item-label">
+                            <span class="settings-item-title">Theme</span>
+                            <span class="settings-item-desc">Choose your preferred look</span>
+                        </div>
+                        <select class="settings-select" id="setting-theme">
+                            <option value="dark">Dark</option>
+                            <option value="darker">Darker</option>
+                            <option value="purple">Purple Haze</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Language -->
+                <div class="settings-group">
+                    <h3 class="settings-group-title">
+                        <i class="fas fa-globe"></i>
+                        Language
+                    </h3>
+
+                    <div class="settings-item">
+                        <div class="settings-item-label">
+                            <span class="settings-item-title">App Language</span>
+                            <span class="settings-item-desc">Select your preferred language</span>
+                        </div>
+                        <select class="settings-select" id="setting-language">
+                            <option value="en">English</option>
+                            <option value="hi">हिन्दी (Hindi)</option>
+                            <option value="es">Español</option>
+                            <option value="fr">Français</option>
+                            <option value="ja">日本語</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Playback -->
+                <div class="settings-group">
+                    <h3 class="settings-group-title">
+                        <i class="fas fa-music"></i>
+                        Playback
+                    </h3>
+
+                    <div class="settings-item">
+                        <div class="settings-item-label">
+                            <span class="settings-item-title">Audio Quality</span>
+                            <span class="settings-item-desc">Higher quality uses more data</span>
+                        </div>
+                        <select class="settings-select" id="setting-quality">
+                            <option value="low">Low (96 kbps)</option>
+                            <option value="normal" selected>Normal (160 kbps)</option>
+                            <option value="high">High (320 kbps)</option>
+                            <option value="lossless">Lossless</option>
+                        </select>
+                    </div>
+
+                    <div class="settings-item">
+                        <div class="settings-item-label">
+                            <span class="settings-item-title">Crossfade</span>
+                            <span class="settings-item-desc">Smooth transition between songs</span>
+                        </div>
+                        <label class="settings-toggle">
+                            <input type="checkbox" id="setting-crossfade">
+                            <span class="settings-toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="settings-item">
+                        <div class="settings-item-label">
+                            <span class="settings-item-title">Autoplay</span>
+                            <span class="settings-item-desc">Play similar songs when queue ends</span>
+                        </div>
+                        <label class="settings-toggle">
+                            <input type="checkbox" id="setting-autoplay" checked>
+                            <span class="settings-toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Reset -->
+                <div class="settings-reset">
+                    <button class="btn-secondary settings-reset-btn" id="settings-reset-btn">
+                        <i class="fas fa-rotate-left"></i>
+                        Reset All Settings
+                    </button>
+                </div>
+            </section>
+
+            <!-- ============================================
+                 FOLLOWED ARTISTS PAGE
+            ============================================ -->
+            <section class="followed-page" id="followed-page">
+                <div class="page-header">
+                    <h2><i class="fas fa-heart" style="color:#e85d9e;"></i> Following</h2>
+                    <p id="followed-count-text">0 artists</p>
+                </div>
+                <div class="followed-grid" id="followed-grid"></div>
+                <div class="library-empty" id="followed-empty">
+                    <i class="fas fa-user-plus"></i>
+                    <p>You're not following anyone yet</p>
+                    <span>Follow artists to see them here</span>
+                </div>
+            </section>
         </main>
     </div>
 
@@ -714,7 +1163,7 @@
         </div>
     </div>
 
-        <!-- ---- MOBILE BOTTOM NAV (only visible on mobile) ---- -->
+    <!-- ---- MOBILE BOTTOM NAV (only visible on mobile) ---- -->
     <nav class="mobile-bottom-nav" id="mobile-bottom-nav">
         <button class="mbn-item active" data-nav="home" aria-label="Home">
             <i class="fas fa-house"></i>
@@ -738,8 +1187,7 @@
         </button>
     </nav>
 
-
-    <!-- ---- CREATE PLAYLIST MODAL ---- -->
+        <!-- ---- CREATE PLAYLIST MODAL ---- -->
     <div class="modal-overlay" id="playlist-modal">
         <div class="modal-card">
             <div class="modal-header">
@@ -757,6 +1205,35 @@
         </div>
     </div>
 
+    <!-- ---- ADD ACCOUNT MODAL ---- -->
+    <div class="modal-overlay" id="add-account-modal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-plus"></i> Add Account</h3>
+                <button class="modal-close" id="add-account-close"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+
+                <!-- Existing accounts list -->
+                <div class="account-list" id="account-list"></div>
+
+                <!-- Add new account form -->
+                <div class="account-new-form">
+                    <label for="new-account-name">New Account</label>
+                    <input type="text" id="new-account-name" placeholder="Name">
+                    <input type="email" id="new-account-email" placeholder="Email" style="margin-top:10px;">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="add-account-cancel">Cancel</button>
+                <button class="btn-primary" id="add-account-save">
+                    <i class="fas fa-plus"></i>
+                    Add Account
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- ============ SCRIPTS (order matters!) ============ -->
     <script src="js/data.js"></script>
     <script src="js/player.js"></script>
@@ -767,8 +1244,13 @@
     <script src="js/profile.js"></script>
     <script src="js/cards.js"></script>
     <script src="js/navigation.js"></script>
+    <script src="js/pages.js"></script>
+    <script src="js/profile-edit.js"></script>
+    <script src="js/settings.js"></script>
+    <script src="js/accounts.js"></script>
+    <script src="js/follows.js"></script>
     <script src="js/bottom-nav.js"></script>
     <script src="js/main.js"></script>
 </body>
 
-</html>
+</html>s

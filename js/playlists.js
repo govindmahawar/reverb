@@ -191,15 +191,36 @@ window.Playlists = (function () {
             `;
         }).join('');
 
-        list.querySelectorAll('.playlist-dropdown-item').forEach(item => {
+               list.querySelectorAll('.playlist-dropdown-item').forEach(item => {
             item.addEventListener('click', () => {
+                /* 🔐 Login required for adding to playlist */
+                if (window.Auth && !window.Auth.isLoggedIn()) {
+                    window.Auth.requireLogin(() => {
+                        const playlistName = item.getAttribute('data-playlist');
+                        const currentIdx = window.Player?.getIndex ? window.Player.getIndex() : 0;
+                        const track = (window.tracks || [])[currentIdx];
+                        if (!track) return;
+
+                        const added = addSongToPlaylist(playlistName, track.id);
+
+                        if (window.BottomNav && window.BottomNav.showToast) {
+                            window.BottomNav.showToast(
+                                added
+                                    ? `Added "${track.title}" to ${playlistName}`
+                                    : `Already in ${playlistName}`
+                            );
+                        }
+                        setTimeout(() => closePlaylistDropdown(), 300);
+                    }, 'add to playlists');
+                    return;
+                }
+
                 const playlistName = item.getAttribute('data-playlist');
                 const currentIdx = window.Player?.getIndex ? window.Player.getIndex() : 0;
                 const track = (window.tracks || [])[currentIdx];
                 if (!track) return;
 
                 const added = addSongToPlaylist(playlistName, track.id);
-                console.log('[Playlists] Add result:', added, 'track:', track.title, '→', playlistName);
 
                 if (window.BottomNav && window.BottomNav.showToast) {
                     window.BottomNav.showToast(
@@ -208,7 +229,6 @@ window.Playlists = (function () {
                             : `Already in ${playlistName}`
                     );
                 }
-
                 setTimeout(() => closePlaylistDropdown(), 300);
             });
         });
@@ -264,7 +284,18 @@ window.Playlists = (function () {
         playlistsGroup = document.getElementById('playlists-group');
 
         /* Modal controls */
-        if (openModalBtn) openModalBtn.addEventListener('click', openModal);
+        if (openModalBtn) {
+            openModalBtn.addEventListener('click', () => {
+                /* 🔐 Login required for creating playlists */
+                if (window.Auth && !window.Auth.isLoggedIn()) {
+                    window.Auth.requireLogin(() => {
+                        openModal();
+                    }, 'create playlists');
+                    return;
+                }
+                openModal();
+            });
+        }
         if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
         if (cancelModalBtn) cancelModalBtn.addEventListener('click', closeModal);
 

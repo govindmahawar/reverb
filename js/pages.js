@@ -35,7 +35,8 @@ window.Pages = (function () {
         'page-downloads',
         'page-profile-edit',
         'page-settings',
-        'page-followed'
+        'page-followed',
+        'page-admin'
     ];
 
     let currentArtistName = null;
@@ -149,6 +150,9 @@ window.Pages = (function () {
             if (window.Follows) window.Follows.render();
         } else if (pageKey === 'album') {
             document.body.classList.add('page-album');
+        } else if (pageKey === 'admin') {
+            document.body.classList.add('page-admin');
+            if (window.Admin) window.Admin.renderAdminPage();
         }
 
         syncNavBarsForPage(pageKey);

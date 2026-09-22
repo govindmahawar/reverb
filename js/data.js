@@ -1,9 +1,10 @@
 /* ==================================================================
-   DATA.JS — Track catalog ("database")
-   Exposes: window.tracks
+   DATA.JS — Track catalog + Admin integration
+   Exposes: window.tracks (dynamic), window.__baseTracks, window.__refreshTracks
 ================================================================== */
 
-window.tracks = [
+/* ---------- Base (built-in) tracks ---------- */
+window.__baseTracks = [
     {
         id: 1,
         title: 'Midnight Sun',
@@ -75,3 +76,67 @@ window.tracks = [
         src: 'https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c8a73467.mp3?filename=ambient-chill-out-10620.mp3'
     }
 ];
+
+/* ---------- Build dynamic tracks (base + admin) ---------- */
+function buildTracks() {
+    const base = window.__baseTracks || [];
+    let admin = [];
+
+    try {
+        const raw = localStorage.getItem('reverb_admin_songs');
+        if (raw) admin = JSON.parse(raw) || [];
+    } catch (e) {}
+
+    const hidden = (() => {
+        try {
+            const raw = localStorage.getItem('reverb_hidden_songs');
+            if (raw) return JSON.parse(raw) || [];
+        } catch (e) {}
+        return [];
+    })();
+
+    /* Filter hidden base tracks */
+    const visibleBase = base.filter(t => !hidden.includes(t.id));
+
+    /* Convert admin songs to track format (published only) */
+    const adminTracks = admin
+        .filter(s => s.published !== false)   /* only published */
+        .map(s => ({
+            id: s.id,
+            title: s.title,
+            artist: s.artist,
+            album: s.album || 'Singles',
+            duration: s.duration || '0:00',
+            durSec: parseDuration(s.duration),
+            art: s.cover || 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400&h=400&fit=crop',
+            src: s.audio,
+            genre: s.genre || '',
+            lyrics: s.lyrics || '',
+            releaseDate: s.releaseDate || '',
+            isAdmin: true
+        }));
+
+    return [...visibleBase, ...adminTracks];
+}
+
+function parseDuration(str) {
+    if (!str) return 0;
+    const parts = String(str).split(':').map(n => parseInt(n, 10));
+    if (parts.length === 2) return parts[0] * 60 + parts[1];
+    if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+    return 0;
+}
+
+window.tracks = buildTracks();
+
+/* ---------- Refresh function (call after admin changes) ---------- */
+window.__refreshTracks = function () {
+    window.tracks = buildTracks();
+    console.log('[Data] Tracks refreshed. Total:', window.tracks.length);
+
+    try {
+        window.dispatchEvent(new CustomEvent('tracks:updated', {
+            detail: { count: window.tracks.length, tracks: window.tracks }
+        }));
+    } catch (e) {}
+};

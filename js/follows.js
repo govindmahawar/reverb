@@ -135,7 +135,7 @@ window.Follows = (function () {
         /* ---- GLOBAL CLICK DELEGATION for follow button ----
            This is the KEY fix — the listener survives even if
            pages.js or others re-render the button. */
-        document.addEventListener('click', (e) => {
+                document.addEventListener('click', (e) => {
             const btn = e.target.closest('#artist-follow-btn');
             if (!btn) return;
 
@@ -149,10 +149,20 @@ window.Follows = (function () {
                 || document.getElementById('artist-profile-img')?.src
                 || '';
 
-            console.log('[Follows] Click detected for:', artistName);
+            if (!artistName) return;
 
-            if (!artistName) {
-                console.warn('[Follows] No artist name!');
+            /* 🔐 Login required for following */
+            if (window.Auth && !window.Auth.isLoggedIn()) {
+                window.Auth.requireLogin(() => {
+                    const nowFollowing = toggle(artistName, artistImg);
+                    btn.classList.toggle('following', nowFollowing);
+                    btn.innerHTML = nowFollowing
+                        ? '<i class="fas fa-check"></i> Following'
+                        : '<i class="fas fa-plus"></i> Follow';
+                    if (window.BottomNav && window.BottomNav.showToast) {
+                        window.BottomNav.showToast(nowFollowing ? `Following ${artistName}` : `Unfollowed ${artistName}`);
+                    }
+                }, 'follow artists');
                 return;
             }
 

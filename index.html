@@ -143,17 +143,23 @@
                     </div>
                 </div>
 
+                <!-- 👑 ADMIN BUTTON (only for owner, laptop only) -->
+                <button class="admin-trigger-btn" id="admin-trigger-btn" title="Admin Panel" style="display:none;">
+                    <i class="fas fa-crown"></i>
+                    <span>Admin</span>
+                </button>
+
                 <!-- Profile wrapper -->
                 <div class="avatar-wrapper" id="avatar-wrapper">
-                    <div class="avatar" id="avatar-btn">A</div>
+                    <div class="avatar" id="avatar-btn">G</div>
 
                     <!-- Profile Dropdown -->
                     <div class="profile-dropdown" id="profile-dropdown">
                         <div class="profile-header">
-                            <div class="profile-header-avatar">A</div>
+                            <div class="profile-header-avatar">G</div>
                             <div class="profile-header-info">
-                                <span class="profile-header-name">Alex Carter</span>
-                                <span class="profile-header-email">alex@reverb.fm</span>
+                                <span class="profile-header-name">Guest User</span>
+                                <span class="profile-header-email" style="color:#b8a8e0;">Tap to log in</span>
                             </div>
                         </div>
 
@@ -348,6 +354,17 @@
                 </div>
             </div>
 
+
+                        <!-- ============================================
+                 👑 ADMIN ADDED SONGS (dynamic — only shows if songs exist)
+            ============================================ -->
+            <div class="section-head" id="admin-songs-section-head" style="display:none;">
+                <h3>👑 admin picks <small>newly added</small></h3>
+                <a href="#">view all <i class="fas fa-arrow-right" style="font-size:0.7rem;"></i></a>
+            </div>
+            <div class="song-list" id="admin-songs-list-home"></div>
+
+
             <!-- LATE NIGHT PICKS -->
             <div class="section-head">
                 <h3>for late hours <small>chill & unwind</small></h3>
@@ -471,10 +488,10 @@
                 <!-- Header -->
                 <div class="library-header">
                     <div class="library-header-top">
-                        <div class="library-avatar">A</div>
+                        <div class="library-avatar">G</div>
                         <div class="library-header-info">
                             <h2>Your Library</h2>
-                            <p>Alex Carter</p>
+                            <p>Guest User</p>
                         </div>
                         <button class="library-add-btn" id="library-add-btn" aria-label="Add">
                             <i class="fas fa-plus"></i>
@@ -1012,7 +1029,7 @@
                 </div>
 
                 <div class="profile-edit-avatar-wrap">
-                    <div class="profile-edit-avatar" id="profile-edit-avatar">A</div>
+                    <div class="profile-edit-avatar" id="profile-edit-avatar">G</div>
                     <button class="profile-edit-avatar-btn" id="profile-change-avatar-btn">
                         <i class="fas fa-camera"></i>
                         Change Photo
@@ -1176,6 +1193,28 @@
                         Reset All Settings
                     </button>
                 </div>
+
+                <!-- ⚠️ DANGER ZONE — Delete Account (only when logged in) -->
+                <div class="settings-group settings-danger-group" id="danger-zone-group" style="display:none;">
+                    <h3 class="settings-group-title settings-danger-title">
+                        <i class="fas fa-triangle-exclamation"></i>
+                        Danger Zone
+                    </h3>
+
+                    <div class="settings-danger-card">
+                        <div class="settings-danger-info">
+                            <span class="settings-danger-heading">Delete Account</span>
+                            <span class="settings-danger-desc">
+                                Permanently delete your account and all data (likes, playlists, follows). 
+                                This action cannot be undone.
+                            </span>
+                        </div>
+                        <button class="settings-danger-btn" id="settings-delete-account-btn">
+                            <i class="fas fa-trash"></i>
+                            Delete My Account
+                        </button>
+                    </div>
+                </div>
             </section>
 
             <!-- ============================================
@@ -1191,6 +1230,51 @@
                     <i class="fas fa-user-plus"></i>
                     <p>You're not following anyone yet</p>
                     <span>Follow artists to see them here</span>
+                </div>
+            </section>
+
+            <!-- ============================================
+                 👑 ADMIN PANEL (laptop only, owner only)
+            ============================================ -->
+            <section class="admin-page" id="admin-page">
+                <div class="admin-header">
+                    <div class="admin-header-left">
+                        <div class="admin-crown-badge"><i class="fas fa-crown"></i></div>
+                        <div>
+                            <h2>Admin Panel</h2>
+                            <p>Manage songs · <span id="admin-song-count">0 songs</span></p>
+                        </div>
+                    </div>
+                    <button class="admin-add-new-btn" id="admin-add-new-btn">
+                        <i class="fas fa-plus"></i>
+                        Add New Song
+                    </button>
+                </div>
+
+                <!-- Stats -->
+                <div class="admin-stats">
+                    <div class="admin-stat-card">
+                        <span class="admin-stat-num" id="admin-stat-total">0</span>
+                        <span class="admin-stat-label">Total Songs</span>
+                    </div>
+                    <div class="admin-stat-card">
+                        <span class="admin-stat-num" id="admin-stat-published">0</span>
+                        <span class="admin-stat-label">Published</span>
+                    </div>
+                    <div class="admin-stat-card">
+                        <span class="admin-stat-num" id="admin-stat-draft">0</span>
+                        <span class="admin-stat-label">Drafts</span>
+                    </div>
+                </div>
+
+                <!-- Songs List -->
+                <div class="admin-songs-list" id="admin-songs-list"></div>
+
+                <!-- Empty state -->
+                <div class="library-empty" id="admin-empty" style="display:none;">
+                    <i class="fas fa-music"></i>
+                    <p>No songs yet</p>
+                    <span>Click "Add New Song" to get started</span>
                 </div>
             </section>
         </main>
@@ -1390,6 +1474,101 @@
         </div>
     </div>
 
+
+
+        <!-- ============================================
+         🔐 AUTH MODAL (Login / Signup)
+    ============================================ -->
+    <div class="modal-overlay auth-modal" id="auth-modal">
+        <div class="modal-card auth-card">
+
+            <!-- Header -->
+            <div class="auth-header">
+                <div class="auth-logo">
+                    <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#b8a8e0" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 6c2.5 0 2.5 2.5 5 2.5s2.5-2.5 5-2.5 2.5 2.5 5 2.5 2.5-2.5 5-2.5"/>
+                        <path d="M2 12c2.5 0 2.5 2.5 5 2.5s2.5-2.5 5-2.5 2.5 2.5 5 2.5 2.5-2.5 5-2.5"/>
+                        <path d="M2 18c2.5 0 2.5 2.5 5 2.5s2.5-2.5 5-2.5 2.5 2.5 5 2.5 2.5-2.5 5-2.5"/>
+                    </svg>
+                </div>
+                <button class="auth-close-btn" id="auth-close-btn" aria-label="Close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Tabs -->
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login">Log in</button>
+                <button class="auth-tab" data-tab="signup">Sign up</button>
+            </div>
+
+            <!-- Title -->
+            <div class="auth-title-wrap">
+                <h2 id="auth-title">Welcome back</h2>
+                <p id="auth-subtitle">Log in to save your likes & playlists</p>
+            </div>
+
+            <!-- Form -->
+            <div class="auth-form">
+
+                <!-- Name (signup only) -->
+                <div class="form-group auth-name-group" id="auth-name-group" style="display:none;">
+                    <label for="auth-name">Full Name</label>
+                    <input type="text" id="auth-name" placeholder="Your name" autocomplete="name">
+                </div>
+
+                <div class="form-group">
+                    <label for="auth-email">Email</label>
+                    <input type="email" id="auth-email" placeholder="you@example.com" autocomplete="email">
+                </div>
+
+                <div class="form-group">
+                    <label for="auth-password">Password</label>
+                    <input type="password" id="auth-password" placeholder="••••••••" autocomplete="current-password">
+                </div>
+
+                <!-- Forgot password (login only) -->
+                <div class="auth-forgot-wrap" id="auth-forgot-wrap">
+                    <button type="button" class="auth-forgot-btn" id="auth-forgot-btn">Forgot password?</button>
+                </div>
+
+                <!-- Error message -->
+                <div class="auth-error" id="auth-error" style="display:none;"></div>
+
+                <!-- Submit -->
+                <button class="btn-primary auth-submit-btn" id="auth-submit-btn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span id="auth-submit-text">Log in</span>
+                </button>
+
+                <!-- Divider -->
+                <div class="auth-divider">
+                    <span>or continue with</span>
+                </div>
+
+                <!-- Social buttons (future Firebase) -->
+                <div class="auth-social">
+                    <button class="auth-social-btn" id="auth-google-btn" type="button">
+                        <i class="fab fa-google"></i>
+                        Google
+                    </button>
+                    <button class="auth-social-btn" id="auth-guest-btn" type="button">
+                        <i class="fas fa-user-secret"></i>
+                        Continue as Guest
+                    </button>
+                </div>
+
+                <!-- Info -->
+                <div class="auth-info">
+                    <i class="fas fa-info-circle"></i>
+                    <span id="auth-info-text">No account? Sign up is free and takes 10 seconds.</span>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
     <!-- ---- CREATE PLAYLIST MODAL ---- -->
     <div class="modal-overlay" id="playlist-modal">
         <div class="modal-card">
@@ -1404,6 +1583,151 @@
             <div class="modal-footer">
                 <button class="btn-secondary" id="btn-cancel-playlist">Cancel</button>
                 <button class="btn-primary" id="btn-save-playlist">Create Playlist</button>
+            </div>
+        </div>
+    </div>
+
+
+        <!-- ---- 👑 ADMIN: SONG EDITOR MODAL ---- -->
+    <div class="modal-overlay admin-modal" id="admin-song-modal">
+        <div class="modal-card admin-modal-card">
+            <div class="modal-header">
+                <h3>
+                    <i class="fas fa-music"></i>
+                    <span id="admin-modal-title">Add New Song</span>
+                </h3>
+                <button class="modal-close" id="admin-modal-close"><i class="fas fa-times"></i></button>
+            </div>
+
+            <div class="modal-body admin-modal-body">
+
+                <div class="admin-form-row">
+                    <div class="form-group">
+                        <label for="admin-input-title">Song Title *</label>
+                        <input type="text" id="admin-input-title" placeholder="e.g. Midnight Sun">
+                    </div>
+                    <div class="form-group">
+                        <label for="admin-input-artist">Singer / Artist *</label>
+                        <input type="text" id="admin-input-artist" placeholder="e.g. Lumen & Echo">
+                    </div>
+                </div>
+
+                <div class="admin-form-row">
+                    <div class="form-group">
+                        <label for="admin-input-album">Album</label>
+                        <input type="text" id="admin-input-album" placeholder="e.g. Echoes of Tomorrow">
+                    </div>
+                    <div class="form-group">
+                        <label for="admin-input-genre">Genre</label>
+                        <input type="text" id="admin-input-genre" placeholder="e.g. Ambient, Lo-Fi">
+                    </div>
+                </div>
+
+                <div class="admin-form-row">
+                    <div class="form-group">
+                        <label for="admin-input-duration">Duration</label>
+                        <input type="text" id="admin-input-duration" placeholder="3:42">
+                    </div>
+                    <div class="form-group">
+                        <label for="admin-input-release">Release Date</label>
+                        <input type="date" id="admin-input-release">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="admin-input-cover">Cover Image URL</label>
+                    <input type="url" id="admin-input-cover" placeholder="https://... (paste image URL from Google / GitHub)">
+                    <div class="admin-input-hint">
+                        <i class="fas fa-info-circle"></i>
+                        Google Images → right-click → "Copy image address" → paste here
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="admin-input-audio">Audio Permalink URL *</label>
+                    <input type="url" id="admin-input-audio" placeholder="https://raw.githubusercontent.com/user/repo/main/song.mp3">
+                    <div class="admin-input-hint">
+                        <i class="fas fa-info-circle"></i>
+                        GitHub repo → file → "Copy permalink" → paste here
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="admin-input-lyrics">Lyrics (optional)</label>
+                    <textarea id="admin-input-lyrics" rows="5" placeholder="Paste lyrics here..."></textarea>
+                </div>
+
+                <!-- Live Preview -->
+                <div class="admin-preview">
+                    <span class="admin-preview-label">Live Preview</span>
+                    <div class="admin-preview-card">
+                        <div class="admin-preview-art" id="admin-preview-art">
+                            <i class="fas fa-music"></i>
+                        </div>
+                        <div class="admin-preview-info">
+                            <span class="admin-preview-title" id="admin-preview-title">Song Title</span>
+                            <span class="admin-preview-artist" id="admin-preview-artist">Artist</span>
+                        </div>
+                    </div>
+                </div>
+
+                <label class="admin-checkbox">
+                    <input type="checkbox" id="admin-input-published" checked>
+                    <span>Publish immediately (visible to all users)</span>
+                </label>
+
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-secondary" id="admin-modal-cancel">Cancel</button>
+                <button class="btn-primary" id="admin-modal-save">
+                    <i class="fas fa-check"></i>
+                    <span id="admin-modal-save-text">Add Song</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+        <!-- ---- ⚠️ DELETE ACCOUNT CONFIRMATION MODAL ---- -->
+    <div class="modal-overlay delete-account-modal" id="delete-account-modal">
+        <div class="modal-card delete-account-card">
+            <div class="delete-account-header">
+                <div class="delete-account-icon">
+                    <i class="fas fa-triangle-exclamation"></i>
+                </div>
+                <h2>Delete Account?</h2>
+                <p>
+                    This will permanently delete your account and all your data. 
+                    This action <strong>cannot be undone</strong>.
+                </p>
+            </div>
+
+            <div class="delete-account-body">
+                <div class="form-group">
+                    <label for="delete-confirm-input">
+                        Type <strong>DELETE</strong> to confirm
+                    </label>
+                    <input type="text" id="delete-confirm-input" placeholder="DELETE" autocomplete="off">
+                </div>
+
+                <div class="form-group">
+                    <label for="delete-password-input">
+                        Enter your password
+                    </label>
+                    <input type="password" id="delete-password-input" placeholder="Your current password" autocomplete="current-password">
+                </div>
+
+                <div class="delete-account-error" id="delete-account-error" style="display:none;"></div>
+            </div>
+
+            <div class="delete-account-footer">
+                <button class="btn-secondary" id="delete-account-cancel">
+                    Cancel
+                </button>
+                <button class="delete-account-confirm-btn" id="delete-account-confirm" disabled>
+                    <i class="fas fa-trash"></i>
+                    Delete Forever
+                </button>
             </div>
         </div>
     </div>
@@ -1438,7 +1762,11 @@
     </div>
 
     <!-- ============ SCRIPTS (order matters!) ============ -->
+       <!-- ============ SCRIPTS (order matters!) ============ -->
+    <script src="js/firebase-config.js"></script>
     <script src="js/data.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/firestore.js"></script>
     <script src="js/player.js"></script>
     <script src="js/sidebar.js"></script>
     <script src="js/search.js"></script>
@@ -1454,6 +1782,8 @@
     <script src="js/follows.js"></script>
     <script src="js/now-playing.js"></script>
     <script src="js/albums.js"></script>
+    <script src="js/github-sync.js"></script>
+    <script src="js/admin.js"></script>
     <script src="js/bottom-nav.js"></script>
     <script src="js/main.js"></script>
 </body>

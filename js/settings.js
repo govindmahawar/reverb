@@ -253,7 +253,151 @@ window.Settings = (function () {
         /* Wire accent swatches */
         wireAccentSwatches();
 
-        console.log('[Settings] Init complete. Accent:', current.accent);
+               /* ============================================================
+           DANGER ZONE — Delete Account
+        ============================================================ */
+        var deleteBtn = document.getElementById('settings-delete-account-btn');
+        var dangerGroup = document.getElementById('danger-zone-group');
+        var deleteModal = document.getElementById('delete-account-modal');
+        var deleteConfirmInput = document.getElementById('delete-confirm-input');
+        var deletePasswordInput = document.getElementById('delete-password-input');
+        var deleteConfirmBtn = document.getElementById('delete-account-confirm');
+        var deleteCancelBtn = document.getElementById('delete-account-cancel');
+        var deleteErrorEl = document.getElementById('delete-account-error');
+
+        /* Show danger zone only when logged in */
+        function updateDangerVisibility() {
+            if (!dangerGroup) return;
+            if (window.Auth && window.Auth.isLoggedIn()) {
+                dangerGroup.style.display = '';
+            } else {
+                dangerGroup.style.display = 'none';
+            }
+        }
+
+        updateDangerVisibility();
+        window.addEventListener('auth:changed', updateDangerVisibility);
+
+        /* Open delete modal */
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', function () {
+                if (!window.Auth || !window.Auth.isLoggedIn()) {
+                    if (window.BottomNav && window.BottomNav.showToast) {
+                        window.BottomNav.showToast('You must be logged in');
+                    }
+                    return;
+                }
+
+                /* Reset form */
+                if (deleteConfirmInput) deleteConfirmInput.value = '';
+                if (deletePasswordInput) deletePasswordInput.value = '';
+                if (deleteErrorEl) deleteErrorEl.style.display = 'none';
+                if (deleteConfirmBtn) deleteConfirmBtn.disabled = true;
+
+                if (deleteModal) deleteModal.classList.add('active');
+                setTimeout(function () {
+                    if (deleteConfirmInput) deleteConfirmInput.focus();
+                }, 200);
+            });
+        }
+
+        /* Enable confirm only when "DELETE" typed */
+        if (deleteConfirmInput) {
+            deleteConfirmInput.addEventListener('input', function () {
+                var val = (deleteConfirmInput.value || '').trim().toUpperCase();
+                if (deleteConfirmBtn) {
+                    deleteConfirmBtn.disabled = (val !== 'DELETE');
+                }
+                if (deleteErrorEl) deleteErrorEl.style.display = 'none';
+            });
+        }
+
+        /* Cancel */
+        if (deleteCancelBtn) {
+            deleteCancelBtn.addEventListener('click', function () {
+                if (deleteModal) deleteModal.classList.remove('active');
+            });
+        }
+
+        /* Click outside closes */
+        if (deleteModal) {
+            deleteModal.addEventListener('click', function (e) {
+                if (e.target === deleteModal) {
+                    deleteModal.classList.remove('active');
+                }
+            });
+        }
+
+        /* Escape closes */
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && deleteModal && deleteModal.classList.contains('active')) {
+                deleteModal.classList.remove('active');
+            }
+        });
+
+        /* Confirm delete */
+        if (deleteConfirmBtn) {
+            deleteConfirmBtn.addEventListener('click', function () {
+                var password = (deletePasswordInput && deletePasswordInput.value) || '';
+
+                if (!password || password.length < 6) {
+                    if (deleteErrorEl) {
+                        deleteErrorEl.textContent = 'Please enter your password';
+                        deleteErrorEl.style.display = 'flex';
+                    }
+                    if (deletePasswordInput) deletePasswordInput.focus();
+                    return;
+                }
+
+                if (!window.Auth || !window.Auth.deleteAccount) {
+                    if (deleteErrorEl) {
+                        deleteErrorEl.textContent = 'Delete function not available';
+                        deleteErrorEl.style.display = 'flex';
+                    }
+                    return;
+                }
+
+                /* Show loading */
+                deleteConfirmBtn.disabled = true;
+                deleteConfirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
+                if (deleteErrorEl) deleteErrorEl.style.display = 'none';
+
+                window.Auth.deleteAccount(
+                    password,
+                    function (progressMsg) {
+                        /* onProgress */
+                        deleteConfirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ' + progressMsg;
+                    },
+                    function (errorMsg) {
+                        /* onError */
+                        if (deleteErrorEl) {
+                            deleteErrorEl.textContent = errorMsg;
+                            deleteErrorEl.style.display = 'flex';
+                        }
+                        deleteConfirmBtn.disabled = false;
+                        deleteConfirmBtn.innerHTML = '<i class="fas fa-trash"></i> Delete Forever';
+                    }
+                ).then(function () {
+                    /* Success */
+                    if (deleteModal) deleteModal.classList.remove('active');
+
+                    if (window.BottomNav && window.BottomNav.showToast) {
+                        window.BottomNav.showToast('✅ Account deleted permanently');
+                    }
+
+                    /* Show login modal after 1 sec so user can signup again */
+                    setTimeout(function () {
+                        if (window.Auth && window.Auth.openModal) {
+                            window.Auth.openModal('signup');
+                        }
+                    }, 1200);
+                }).catch(function () {
+                    /* Error already shown */
+                });
+            });
+        }
+
+        console.log('[Settings] Init complete.');
     }
 
     return {

@@ -236,35 +236,41 @@ window.Likes = (function () {
     function init() {
 
         /* ---- GLOBAL click delegation for ANY .song-like ---- */
-        document.addEventListener('click', (e) => {
+               document.addEventListener('click', (e) => {
             const heart = e.target.closest('.song-like');
             if (!heart) return;
 
             e.preventDefault();
             e.stopPropagation();
 
-            /* Skip hearts inside Liked page — they have own handler above */
             if (heart.closest('#liked-list')) return;
 
             const trackId = getTrackId(heart);
-            if (trackId === null) {
-                console.warn('[Likes] Could not resolve track ID for', heart);
+            if (trackId === null) return;
+
+            /* 🔐 Login required for liking */
+            if (window.Auth && !window.Auth.isLoggedIn()) {
+                window.Auth.requireLogin(() => {
+                    /* After login, do the like */
+                    const nowLiked = toggle(trackId);
+                    updateHeartVisual(heart, nowLiked);
+                    if (window.BottomNav && window.BottomNav.showToast) {
+                        const tracks = window.tracks || [];
+                        const t = tracks.find(tr => tr.id === trackId);
+                        window.BottomNav.showToast(nowLiked ? `Liked ${t?.title || 'Song'} ❤️` : 'Removed');
+                    }
+                }, 'like songs');
                 return;
             }
 
             const nowLiked = toggle(trackId);
             updateHeartVisual(heart, nowLiked);
 
-            console.log('[Likes] Toggled', trackId, '→', nowLiked ? 'liked' : 'unliked');
-
-            /* Toast */
             if (window.BottomNav && window.BottomNav.showToast) {
                 const tracks = window.tracks || [];
                 const t = tracks.find(tr => tr.id === trackId);
                 const label = t ? t.title : 'Song';
-                window.BottomNav.showToast(
-                    nowLiked ? `Liked ${label} ❤️` : `Removed ${label}`
-                );
+                window.BottomNav.showToast(nowLiked ? `Liked ${label} ❤️` : `Removed ${label}`);
             }
         });
 

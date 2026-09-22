@@ -250,8 +250,15 @@ window.BottomNav = (function () {
                 showToast('Premium — coming soon ✨');
                 break;
             case 'create':
-                const openModalBtn = document.getElementById('btn-open-playlist-modal');
-                if (openModalBtn) openModalBtn.click();
+                if (window.Auth && !window.Auth.isLoggedIn()) {
+                    window.Auth.requireLogin(() => {
+                        const openModalBtn = document.getElementById('btn-open-playlist-modal');
+                        if (openModalBtn) openModalBtn.click();
+                    }, 'create playlists');
+                    break;
+                }
+                const openModalBtn2 = document.getElementById('btn-open-playlist-modal');
+                if (openModalBtn2) openModalBtn2.click();
                 break;
         }
     }

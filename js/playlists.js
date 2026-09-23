@@ -49,9 +49,16 @@ window.Playlists = (function () {
     }
 
     function syncToFirestore() {
-        if (window.Firestore && window.Firestore.isReady()) {
-            window.Firestore.savePlaylists(customPlaylists, playlistSongs);
+        if (!window.Firestore || !window.Firestore.isReady()) return;
+
+        /* 🔴 SAFETY: Agar data load nahi hua, to overwrite mat karo */
+        if (!window._playlistsLoaded && customPlaylists.length === 0 && Object.keys(playlistSongs).length === 0) {
+            console.warn('[Playlists] ⚠️ Skipping save — data not loaded yet (prevents wipe)');
+            return;
         }
+
+        console.log('[Playlists] Saving to Firestore:', customPlaylists.length, 'playlists');
+        window.Firestore.savePlaylists(customPlaylists, playlistSongs);
     }
 
     /* ============================================================
@@ -316,19 +323,59 @@ window.Playlists = (function () {
         window.addEventListener('auth:changed', function () {
             if (!window.Auth || !window.Auth.isLoggedIn()) return;
             if (!window.Firestore || !window.Firestore.isReady()) return;
-
-            console.log('[Playlists] Loading from Firestore...');
-            window.Firestore.loadPlaylists().then(function (data) {
-                if (data) {
-                    customPlaylists = data.playlists || [];
-                    playlistSongs = data.songsMap || {};
-                    loadSavedPlaylists();
-                    console.log('[Playlists] ✅ Loaded from Firestore:', customPlaylists.length, 'playlists');
-                }
-            });
+            loadFromFirestore();
         });
 
+        /* 🔴 ALSO LOAD ON PAGE LOAD (in case user already logged in) */
+        window.addEventListener('firebase:ready', function () {
+            setTimeout(function () {
+                if (window.Auth && window.Auth.isLoggedIn()) {
+                    loadFromFirestore();
+                }
+            }, 1000);
+        });
+
+        /* Fallback: poll for auth state (in case events miss) */
+        var loadCheckInterval = setInterval(function () {
+            if (window.Auth && window.Auth.isLoggedIn() && window.Firestore && window.Firestore.isReady()) {
+                clearInterval(loadCheckInterval);
+                if (!window._playlistsLoaded) {
+                    loadFromFirestore();
+                }
+            }
+        }, 500);
+
+        /* Stop polling after 15 seconds */
+        setTimeout(function () {
+            clearInterval(loadCheckInterval);
+        }, 15000);
+
         console.log('[Playlists] Init complete (Firestore synced)');
+    }
+
+    /* ============================================================
+       LOAD FROM FIRESTORE (dedicated function)
+    ============================================================ */
+    function loadFromFirestore() {
+        if (window._playlistsLoaded) return; /* Prevent double load */
+        window._playlistsLoaded = true;
+
+        console.log('[Playlists] Loading from Firestore...');
+        window.Firestore.loadPlaylists().then(function (data) {
+            if (data) {
+                customPlaylists = data.playlists || [];
+                playlistSongs = data.songsMap || {};
+
+                /* Clear existing custom playlist DOM and re-render */
+                document.querySelectorAll('.playlist-mini[data-playlist-name]').forEach(el => el.remove());
+
+                loadSavedPlaylists();
+                console.log('[Playlists] ✅ Loaded:', customPlaylists.length, 'playlists,', Object.keys(playlistSongs).length, 'song maps');
+            }
+        }).catch(function (err) {
+            console.error('[Playlists] Load error:', err);
+            window._playlistsLoaded = false; /* Retry on error */
+        });
     }
 
     return {

@@ -57,9 +57,15 @@ window.Follows = (function () {
     }
 
     function syncToFirestore() {
-        if (window.Firestore && window.Firestore.isReady()) {
-            window.Firestore.saveFollows(followed);
+        if (!window.Firestore || !window.Firestore.isReady()) return;
+
+        /* Safety: don't wipe data if not loaded */
+        if (!window._followsLoaded && followed.length === 0) {
+            console.warn('[Follows] ⚠️ Skipping save — data not loaded yet');
+            return;
         }
+
+        window.Firestore.saveFollows(followed);
     }
 
     function dispatchUpdate() {
@@ -183,18 +189,50 @@ window.Follows = (function () {
         window.addEventListener('auth:changed', function () {
             if (!window.Auth || !window.Auth.isLoggedIn()) return;
             if (!window.Firestore || !window.Firestore.isReady()) return;
-
-            console.log('[Follows] Loading from Firestore...');
-            window.Firestore.loadFollows().then(function (list) {
-                if (list && Array.isArray(list)) {
-                    followed = list.slice();
-                    if (document.body.classList.contains('page-followed')) render();
-                    console.log('[Follows] ✅ Loaded from Firestore:', list.length, 'artists');
-                }
-            });
+            loadFromFirestore();
         });
 
+        /* 🔴 ALSO LOAD ON PAGE LOAD */
+        window.addEventListener('firebase:ready', function () {
+            setTimeout(function () {
+                if (window.Auth && window.Auth.isLoggedIn()) {
+                    loadFromFirestore();
+                }
+            }, 1000);
+        });
+
+        /* Fallback polling */
+        var loadCheckInterval = setInterval(function () {
+            if (window.Auth && window.Auth.isLoggedIn() && window.Firestore && window.Firestore.isReady()) {
+                clearInterval(loadCheckInterval);
+                if (!window._followsLoaded) {
+                    loadFromFirestore();
+                }
+            }
+        }, 500);
+
+        setTimeout(function () {
+            clearInterval(loadCheckInterval);
+        }, 15000);
+
         console.log('[Follows] Module loaded (Firestore synced)');
+    }
+
+    function loadFromFirestore() {
+        if (window._followsLoaded) return;
+        window._followsLoaded = true;
+
+        console.log('[Follows] Loading from Firestore...');
+        window.Firestore.loadFollows().then(function (list) {
+            if (list && Array.isArray(list)) {
+                followed = list.slice();
+                if (document.body.classList.contains('page-followed')) render();
+                console.log('[Follows] ✅ Loaded:', list.length, 'artists');
+            }
+        }).catch(function (err) {
+            console.error('[Follows] Load error:', err);
+            window._followsLoaded = false;
+        });
     }
 
     return {

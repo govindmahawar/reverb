@@ -27,8 +27,12 @@ window.Likes = (function () {
             likedIds.splice(idx, 1);
         }
 
-        /* Sync to Firestore */
+        /* Sync to Firestore — with safety check */
         if (window.Firestore && window.Firestore.isReady()) {
+            /* Don't sync if data hasn't loaded yet (prevents wipe) */
+            if (!window._likesLoaded && likedIds.length === 1) {
+                console.warn('[Likes] ⚠️ Data not loaded — but user is explicitly liking, so saving');
+            }
             window.Firestore.saveLikes(likedIds);
         }
 
@@ -249,19 +253,51 @@ window.Likes = (function () {
         window.addEventListener('auth:changed', function () {
             if (!window.Auth || !window.Auth.isLoggedIn()) return;
             if (!window.Firestore || !window.Firestore.isReady()) return;
-
-            console.log('[Likes] Loading from Firestore...');
-            window.Firestore.loadLikes().then(function (ids) {
-                if (ids && Array.isArray(ids)) {
-                    likedIds = ids.map(Number);
-                    syncAllHearts();
-                    if (document.body.classList.contains('page-liked')) renderLikedPage();
-                    console.log('[Likes] ✅ Loaded from Firestore:', ids.length, 'songs');
-                }
-            });
+            loadFromFirestore();
         });
 
+        /* 🔴 ALSO LOAD ON PAGE LOAD */
+        window.addEventListener('firebase:ready', function () {
+            setTimeout(function () {
+                if (window.Auth && window.Auth.isLoggedIn()) {
+                    loadFromFirestore();
+                }
+            }, 1000);
+        });
+
+        /* Fallback polling */
+        var loadCheckInterval = setInterval(function () {
+            if (window.Auth && window.Auth.isLoggedIn() && window.Firestore && window.Firestore.isReady()) {
+                clearInterval(loadCheckInterval);
+                if (!window._likesLoaded) {
+                    loadFromFirestore();
+                }
+            }
+        }, 500);
+
+        setTimeout(function () {
+            clearInterval(loadCheckInterval);
+        }, 15000);
+
         console.log('[Likes] Module loaded (Firestore synced)');
+    }
+
+    function loadFromFirestore() {
+        if (window._likesLoaded) return;
+        window._likesLoaded = true;
+
+        console.log('[Likes] Loading from Firestore...');
+        window.Firestore.loadLikes().then(function (ids) {
+            if (ids && Array.isArray(ids)) {
+                likedIds = ids.map(Number);
+                syncAllHearts();
+                if (document.body.classList.contains('page-liked')) renderLikedPage();
+                console.log('[Likes] ✅ Loaded:', ids.length, 'songs');
+            }
+        }).catch(function (err) {
+            console.error('[Likes] Load error:', err);
+            window._likesLoaded = false;
+        });
     }
 
     return {

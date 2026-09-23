@@ -81,7 +81,7 @@ window.Auth = (function () {
     /* ============================================================
        LOGOUT
     ============================================================ */
-    function logout() {
+       function logout() {
         console.log('[Auth] Logging out...');
 
         if (window._verifyCheckInterval) {
@@ -115,6 +115,17 @@ window.Auth = (function () {
             if (window.Follows && window.Follows.clearAll) window.Follows.clearAll();
         } catch (e) {}
 
+        /* 🔴 RESET LOAD FLAGS — so next login re-loads from Firestore */
+        window._likesLoaded = false;
+        window._followsLoaded = false;
+        window._playlistsLoaded = false;
+
+        /* 🔴 CLEAR CUSTOM PLAYLIST UI */
+        try {
+            document.querySelectorAll('.playlist-mini[data-playlist-name]').forEach(el => el.remove());
+            document.querySelectorAll('.library-item[data-playlist-name]').forEach(el => el.remove());
+        } catch (e) {}
+
         if (window.Pages) {
             try { window.Pages.navigate('home'); } catch (e) {}
         }
@@ -127,7 +138,7 @@ window.Auth = (function () {
             window.BottomNav.showToast('Logged out — continuing as guest');
         }
 
-        console.log('[Auth] Logout complete');
+        console.log('[Auth] Logout complete. Load flags reset.');
     }
 
     /* ============================================================

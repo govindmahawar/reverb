@@ -1,5 +1,5 @@
 /* ==================================================================
-   PLAYLISTS.JS — Playlists (Firestore synced)
+   PLAYLISTS.JS — Playlists (Firestore synced + auto-render)
    Exposes: window.Playlists
 ================================================================== */
 
@@ -13,8 +13,9 @@ window.Playlists = (function () {
         { name: 'Indie Folk', icon: 'fa-guitar', gradient: 'linear-gradient(145deg, #2a5a5a, #1a3d3d)' }
     ];
 
-    let customPlaylists = []; /* [{ name, icon, gradient }] */
-    let playlistSongs = {};   /* { playlistName: [trackId, ...] } */
+    /* In-memory store */
+    let customPlaylists = [];
+    let playlistSongs = {};
 
     let modalOverlay, openModalBtn, closeModalBtn, cancelModalBtn,
         savePlaylistBtn, playlistNameInput, playlistsGroup;
@@ -48,36 +49,65 @@ window.Playlists = (function () {
         syncToFirestore();
     }
 
+    /* ============================================================
+       FIRESTORE SYNC
+    ============================================================ */
     function syncToFirestore() {
         if (!window.Firestore || !window.Firestore.isReady()) return;
 
-        /* 🔴 SAFETY: Agar data load nahi hua, to overwrite mat karo */
-        if (!window._playlistsLoaded && customPlaylists.length === 0 && Object.keys(playlistSongs).length === 0) {
-            console.warn('[Playlists] ⚠️ Skipping save — data not loaded yet (prevents wipe)');
+        /* 🔴 SAFETY: Don't overwrite if data not loaded yet */
+        if (!window._playlistsLoaded && customPlaylists.length === 0) {
+            console.warn('[Playlists] ⚠️ Skipping save — data not loaded yet');
             return;
         }
 
-        console.log('[Playlists] Saving to Firestore:', customPlaylists.length, 'playlists');
+        console.log('[Playlists] 💾 Saving to Firestore:', customPlaylists.length, 'playlists');
         window.Firestore.savePlaylists(customPlaylists, playlistSongs);
     }
 
+    function loadFromFirestore() {
+        if (window._playlistsLoaded) return;
+        if (!window.Firestore || !window.Firestore.isReady()) return;
+
+        window._playlistsLoaded = true;
+        console.log('[Playlists] 📥 Loading from Firestore...');
+
+        window.Firestore.loadPlaylists().then(function (data) {
+            if (data) {
+                customPlaylists = data.playlists || [];
+                playlistSongs = data.songsMap || {};
+
+                console.log('[Playlists] ✅ Loaded:', customPlaylists.length, 'playlists');
+
+                /* 🔴 Render everything */
+                renderSidebarPlaylists();
+                renderLibraryPagePlaylists();
+            }
+        }).catch(function (err) {
+            console.error('[Playlists] Load error:', err);
+            window._playlistsLoaded = false;
+        });
+    }
+
     /* ============================================================
-       PLAY
+       PLAY PLAYLIST
     ============================================================ */
     function playPlaylist(playlistName) {
         const songIds = getSongsInPlaylist(playlistName);
         const tracks = window.tracks || [];
+
         if (!songIds.length) {
             if (window.BottomNav && window.BottomNav.showToast) {
-                window.BottomNav.showToast(`${playlistName} is empty`);
+                window.BottomNav.showToast(playlistName + ' is empty');
             }
             return;
         }
+
         const firstIdx = tracks.findIndex(t => t.id === songIds[0]);
         if (firstIdx !== -1 && window.Player) {
             window.Player.loadTrack(firstIdx, true);
             if (window.BottomNav && window.BottomNav.showToast) {
-                window.BottomNav.showToast(`Playing ${playlistName}`);
+                window.BottomNav.showToast('Playing ' + playlistName);
             }
         }
     }
@@ -85,9 +115,98 @@ window.Playlists = (function () {
     /* ============================================================
        RENDER SIDEBAR PLAYLISTS
     ============================================================ */
-    function renderNewPlaylist(name, isNew) {
-        if (isNew === undefined) isNew = true;
-        if (!name || !name.trim()) return;
+    function renderSidebarPlaylists() {
+        if (!playlistsGroup) {
+            playlistsGroup = document.getElementById('playlists-group');
+        }
+        if (!playlistsGroup) return;
+
+        console.log('[Playlists] 🎨 Rendering sidebar:', customPlaylists.length, 'custom playlists');
+
+        /* 🔴 Remove ALL existing custom playlist items */
+        playlistsGroup.querySelectorAll('.playlist-mini[data-playlist-name]').forEach(el => el.remove());
+
+        /* 🔴 Render each custom playlist */
+        customPlaylists.forEach(function (pl) {
+            const songs = getSongsInPlaylist(pl.name);
+
+            const newPl = document.createElement('div');
+            newPl.className = 'playlist-mini';
+            newPl.setAttribute('data-title', pl.name);
+            newPl.setAttribute('data-playlist-name', pl.name);
+
+            newPl.innerHTML = ''
+                + '<div class="playlist-mini-art" style="background:' + (pl.gradient || 'linear-gradient(145deg, #7c3aed, #4c1d95)') + ';">'
+                +   '<i class="fas ' + (pl.icon || 'fa-compact-disc') + '"></i>'
+                + '</div>'
+                + '<span>' + pl.name + '</span>';
+
+            newPl.addEventListener('click', function () {
+                playPlaylist(pl.name);
+            });
+
+            playlistsGroup.appendChild(newPl);
+        });
+
+        console.log('[Playlists] ✅ Sidebar rendered');
+    }
+
+    /* ============================================================
+       RENDER LIBRARY PAGE PLAYLISTS
+    ============================================================ */
+    function renderLibraryPagePlaylists() {
+        const container = document.querySelector('.library-tab-content[data-content="playlists"]');
+        if (!container) {
+            console.log('[Playlists] Library container not found (may be desktop)');
+            return;
+        }
+
+        console.log('[Playlists] 🎨 Rendering library page:', customPlaylists.length, 'custom playlists');
+
+        /* 🔴 Remove existing custom playlist items */
+        container.querySelectorAll('.library-item[data-playlist-name]').forEach(el => el.remove());
+
+        /* 🔴 Render each custom playlist */
+        customPlaylists.forEach(function (pl) {
+            const songs = getSongsInPlaylist(pl.name);
+
+            const item = document.createElement('div');
+            item.className = 'library-item';
+            item.setAttribute('data-playlist-name', pl.name);
+
+            item.innerHTML = ''
+                + '<div class="library-item-art" style="background:' + (pl.gradient || 'linear-gradient(145deg, #7c3aed, #4c1d95)') + ';">'
+                +   '<i class="fas ' + (pl.icon || 'fa-compact-disc') + '"></i>'
+                + '</div>'
+                + '<div class="library-item-info">'
+                +   '<span class="library-item-title">' + pl.name + '</span>'
+                +   '<span class="library-item-meta">Playlist · ' + songs.length + ' song' + (songs.length !== 1 ? 's' : '') + '</span>'
+                + '</div>';
+
+            item.addEventListener('click', function () {
+                playPlaylist(pl.name);
+            });
+
+            container.appendChild(item);
+        });
+
+        console.log('[Playlists] ✅ Library page rendered');
+    }
+
+    /* ============================================================
+       CREATE NEW PLAYLIST
+    ============================================================ */
+    function createPlaylist(name) {
+        if (!name || !name.trim()) return false;
+        name = name.trim();
+
+        /* Prevent duplicates */
+        if (customPlaylists.some(p => p.name === name)) {
+            if (window.BottomNav && window.BottomNav.showToast) {
+                window.BottomNav.showToast('Playlist already exists');
+            }
+            return false;
+        }
 
         const gradients = [
             'linear-gradient(145deg, #7c3aed, #4c1d95)',
@@ -97,46 +216,21 @@ window.Playlists = (function () {
         ];
         const bg = gradients[customPlaylists.length % gradients.length];
 
-        const newPl = document.createElement('div');
-        newPl.className = 'playlist-mini';
-        newPl.setAttribute('data-title', name);
-        newPl.setAttribute('data-playlist-name', name);
-
-        newPl.innerHTML = `
-            <div class="playlist-mini-art" style="background:${bg}">
-                <i class="fas fa-compact-disc"></i>
-            </div>
-            <span>${name}</span>
-        `;
-        if (playlistsGroup) playlistsGroup.appendChild(newPl);
-
-        newPl.addEventListener('click', () => playPlaylist(name));
-
-        if (isNew) {
-            customPlaylists.push({ name: name, icon: 'fa-compact-disc', gradient: bg });
-            syncToFirestore();
-        }
-    }
-
-    function loadSavedPlaylists() {
-        /* Render all custom playlists from memory */
-        customPlaylists.forEach(pl => {
-            const exists = document.querySelector('.playlist-mini[data-playlist-name="' + pl.name + '"]');
-            if (!exists) renderNewPlaylist(pl.name, false);
+        customPlaylists.push({
+            name: name,
+            icon: 'fa-compact-disc',
+            gradient: bg
         });
 
-        /* Wire existing ones */
-        document.querySelectorAll('.playlist-mini').forEach(item => {
-            if (item._plBound) return;
-            item._plBound = true;
-            const name = item.getAttribute('data-title') || item.getAttribute('data-playlist-name');
-            if (!name) return;
-            item.addEventListener('click', () => playPlaylist(name));
-        });
+        syncToFirestore();
+        renderSidebarPlaylists();
+        renderLibraryPagePlaylists();
+
+        return true;
     }
 
     /* ============================================================
-       DROPDOWN
+       DROPDOWN (➕ Add to playlist)
     ============================================================ */
     function renderPlaylistDropdown() {
         const list = document.getElementById('playlist-dropdown-list');
@@ -149,33 +243,29 @@ window.Playlists = (function () {
             return;
         }
 
-        list.innerHTML = playlists.map(pl => {
+        list.innerHTML = playlists.map(function (pl) {
             const songs = getSongsInPlaylist(pl.name);
-            return `
-                <div class="playlist-dropdown-item" data-playlist="${pl.name}">
-                    <div class="playlist-dropdown-art" style="background:${pl.gradient};">
-                        <i class="fas ${pl.icon}"></i>
-                    </div>
-                    <div class="playlist-dropdown-info">
-                        <span class="playlist-dropdown-title">${pl.name}</span>
-                        <span class="playlist-dropdown-meta">${songs.length} song${songs.length !== 1 ? 's' : ''}</span>
-                    </div>
-                </div>
-            `;
+            return ''
+                + '<div class="playlist-dropdown-item" data-playlist="' + pl.name + '">'
+                +   '<div class="playlist-dropdown-art" style="background:' + pl.gradient + ';">'
+                +     '<i class="fas ' + pl.icon + '"></i>'
+                +   '</div>'
+                +   '<div class="playlist-dropdown-info">'
+                +     '<span class="playlist-dropdown-title">' + pl.name + '</span>'
+                +     '<span class="playlist-dropdown-meta">' + songs.length + ' song' + (songs.length !== 1 ? 's' : '') + '</span>'
+                +   '</div>'
+                + '</div>';
         }).join('');
 
-        list.querySelectorAll('.playlist-dropdown-item').forEach(item => {
-            item.addEventListener('click', () => {
-                /* Login required */
+        list.querySelectorAll('.playlist-dropdown-item').forEach(function (item) {
+            item.addEventListener('click', function () {
                 if (window.Auth && !window.Auth.isLoggedIn()) {
-                    window.Auth.requireLogin(() => {
-                        const playlistName = item.getAttribute('data-playlist');
-                        addSongFromCurrent(playlistName);
+                    window.Auth.requireLogin(function () {
+                        addSongFromCurrent(item.getAttribute('data-playlist'));
                     }, 'add to playlists');
                     return;
                 }
-                const playlistName = item.getAttribute('data-playlist');
-                addSongFromCurrent(playlistName);
+                addSongFromCurrent(item.getAttribute('data-playlist'));
             });
         });
     }
@@ -193,7 +283,7 @@ window.Playlists = (function () {
                 : 'Already in ' + playlistName);
         }
 
-        setTimeout(() => closePlaylistDropdown(), 300);
+        setTimeout(closePlaylistDropdown, 300);
     }
 
     function openPlaylistDropdown() {
@@ -220,7 +310,10 @@ window.Playlists = (function () {
     function openModal() {
         if (modalOverlay) {
             modalOverlay.classList.add('active');
-            if (playlistNameInput) playlistNameInput.focus();
+            if (playlistNameInput) {
+                playlistNameInput.value = '';
+                playlistNameInput.focus();
+            }
         }
     }
 
@@ -243,8 +336,18 @@ window.Playlists = (function () {
         playlistNameInput = document.getElementById('playlist-name-input');
         playlistsGroup = document.getElementById('playlists-group');
 
+        /* Wire existing built-in playlist-mini items */
+        document.querySelectorAll('.playlist-mini').forEach(function (item) {
+            if (item._plBound) return;
+            item._plBound = true;
+            const name = item.getAttribute('data-title') || item.getAttribute('data-playlist-name');
+            if (!name) return;
+            item.addEventListener('click', function () { playPlaylist(name); });
+        });
+
+        /* Open create modal */
         if (openModalBtn) {
-            openModalBtn.addEventListener('click', () => {
+            openModalBtn.addEventListener('click', function () {
                 if (window.Auth && !window.Auth.isLoggedIn()) {
                     window.Auth.requireLogin(openModal, 'create playlists');
                     return;
@@ -252,20 +355,21 @@ window.Playlists = (function () {
                 openModal();
             });
         }
+
+        /* Close modal */
         if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
         if (cancelModalBtn) cancelModalBtn.addEventListener('click', closeModal);
-
         if (modalOverlay) {
-            modalOverlay.addEventListener('click', (e) => {
+            modalOverlay.addEventListener('click', function (e) {
                 if (e.target === modalOverlay) closeModal();
             });
         }
 
+        /* Save new playlist */
         if (savePlaylistBtn) {
-            savePlaylistBtn.addEventListener('click', () => {
+            savePlaylistBtn.addEventListener('click', function () {
                 const val = playlistNameInput.value;
-                if (val) {
-                    renderNewPlaylist(val, true);
+                if (createPlaylist(val)) {
                     closeModal();
                     if (window.BottomNav && window.BottomNav.showToast) {
                         window.BottomNav.showToast('Created "' + val + '"');
@@ -275,17 +379,18 @@ window.Playlists = (function () {
         }
 
         if (playlistNameInput) {
-            playlistNameInput.addEventListener('keydown', (e) => {
+            playlistNameInput.addEventListener('keydown', function (e) {
                 if (e.key === 'Enter') {
                     e.preventDefault();
-                    savePlaylistBtn?.click();
+                    if (savePlaylistBtn) savePlaylistBtn.click();
                 }
             });
         }
 
+        /* ➕ Mini add button */
         const miniAddBtn = document.getElementById('mini-add-btn');
         if (miniAddBtn) {
-            miniAddBtn.addEventListener('click', (e) => {
+            miniAddBtn.addEventListener('click', function (e) {
                 e.stopPropagation();
                 e.preventDefault();
                 if (window.Auth && !window.Auth.isLoggedIn()) {
@@ -296,15 +401,17 @@ window.Playlists = (function () {
             });
         }
 
+        /* Dropdown close */
         const ddClose = document.getElementById('playlist-dropdown-close');
         if (ddClose) {
-            ddClose.addEventListener('click', (e) => {
+            ddClose.addEventListener('click', function (e) {
                 e.stopPropagation();
                 closePlaylistDropdown();
             });
         }
 
-        document.addEventListener('click', (e) => {
+        /* Outside click closes dropdown */
+        document.addEventListener('click', function (e) {
             const dd = document.getElementById('playlist-dropdown');
             const btn = document.getElementById('mini-add-btn');
             if (!dd || !dd.classList.contains('open')) return;
@@ -313,80 +420,71 @@ window.Playlists = (function () {
             closePlaylistDropdown();
         });
 
-        document.addEventListener('keydown', (e) => {
+        /* Escape closes dropdown */
+        document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') closePlaylistDropdown();
         });
 
-        loadSavedPlaylists();
+        /* Library tabs — re-render when playlists tab opens */
+        document.querySelectorAll('.library-tab').forEach(function (tab) {
+            tab.addEventListener('click', function () {
+                if (tab.getAttribute('data-tab') === 'playlists') {
+                    setTimeout(renderLibraryPagePlaylists, 100);
+                }
+            });
+        });
 
-        /* 🔴 LOAD FROM FIRESTORE on login */
+        /* 🔴 LOAD FROM FIRESTORE when user logs in */
         window.addEventListener('auth:changed', function () {
             if (!window.Auth || !window.Auth.isLoggedIn()) return;
-            if (!window.Firestore || !window.Firestore.isReady()) return;
             loadFromFirestore();
         });
 
-        /* 🔴 ALSO LOAD ON PAGE LOAD (in case user already logged in) */
+        /* 🔴 ALSO LOAD ON PAGE LOAD (if already logged in) */
         window.addEventListener('firebase:ready', function () {
             setTimeout(function () {
                 if (window.Auth && window.Auth.isLoggedIn()) {
                     loadFromFirestore();
                 }
-            }, 1000);
+            }, 800);
         });
 
-        /* Fallback: poll for auth state (in case events miss) */
-        var loadCheckInterval = setInterval(function () {
+        /* 🔴 POLLING FALLBACK — check every 500ms for first 15s */
+        var pollCount = 0;
+        var pollInterval = setInterval(function () {
+            pollCount++;
+            if (window._playlistsLoaded) {
+                clearInterval(pollInterval);
+                return;
+            }
             if (window.Auth && window.Auth.isLoggedIn() && window.Firestore && window.Firestore.isReady()) {
-                clearInterval(loadCheckInterval);
-                if (!window._playlistsLoaded) {
-                    loadFromFirestore();
-                }
+                clearInterval(pollInterval);
+                loadFromFirestore();
+            }
+            if (pollCount >= 30) {
+                clearInterval(pollInterval);
             }
         }, 500);
 
-        /* Stop polling after 15 seconds */
-        setTimeout(function () {
-            clearInterval(loadCheckInterval);
-        }, 15000);
-
-        console.log('[Playlists] Init complete (Firestore synced)');
+        console.log('[Playlists] ✅ Init complete (Firestore synced + auto-render)');
     }
 
     /* ============================================================
-       LOAD FROM FIRESTORE (dedicated function)
+       PUBLIC API
     ============================================================ */
-    function loadFromFirestore() {
-        if (window._playlistsLoaded) return; /* Prevent double load */
-        window._playlistsLoaded = true;
-
-        console.log('[Playlists] Loading from Firestore...');
-        window.Firestore.loadPlaylists().then(function (data) {
-            if (data) {
-                customPlaylists = data.playlists || [];
-                playlistSongs = data.songsMap || {};
-
-                /* Clear existing custom playlist DOM and re-render */
-                document.querySelectorAll('.playlist-mini[data-playlist-name]').forEach(el => el.remove());
-
-                loadSavedPlaylists();
-                console.log('[Playlists] ✅ Loaded:', customPlaylists.length, 'playlists,', Object.keys(playlistSongs).length, 'song maps');
-            }
-        }).catch(function (err) {
-            console.error('[Playlists] Load error:', err);
-            window._playlistsLoaded = false; /* Retry on error */
-        });
-    }
-
     return {
-        init,
-        addSongToPlaylist,
-        removeSongFromPlaylist,
-        getSongsInPlaylist,
-        getAllPlaylists,
-        playPlaylist,
-        openPlaylistDropdown,
-        closePlaylistDropdown,
-        renderPlaylistDropdown
+        init: init,
+        addSongToPlaylist: addSongToPlaylist,
+        removeSongFromPlaylist: removeSongFromPlaylist,
+        getSongsInPlaylist: getSongsInPlaylist,
+        getAllPlaylists: getAllPlaylists,
+        playPlaylist: playPlaylist,
+        openPlaylistDropdown: openPlaylistDropdown,
+        closePlaylistDropdown: closePlaylistDropdown,
+        renderPlaylistDropdown: renderPlaylistDropdown,
+        createPlaylist: createPlaylist,
+        renderSidebarPlaylists: renderSidebarPlaylists,
+        renderLibraryPagePlaylists: renderLibraryPagePlaylists,
+        loadFromFirestore: loadFromFirestore
     };
 })();

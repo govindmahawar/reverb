@@ -1,46 +1,11 @@
 /* ==================================================================
-   PLAYLISTS.JS — Create playlist + Add songs + Play playlists
+   PLAYLISTS.JS — Playlists (Firestore synced)
    Exposes: window.Playlists
 ================================================================== */
 
 window.Playlists = (function () {
 
-    const STORAGE_KEY = 'reverb_custom_playlists';
-    const SYSTEM_KEY = 'reverb_system_playlists';
-
-    let modalOverlay, openModalBtn, closeModalBtn, cancelModalBtn,
-        savePlaylistBtn, playlistNameInput, playlistsGroup;
-
-    /* ---------- Storage ---------- */
-    function loadCustomPlaylists() {
-        try {
-            const raw = localStorage.getItem(STORAGE_KEY);
-            if (raw) return JSON.parse(raw) || [];
-        } catch (e) {}
-        return [];
-    }
-
-    function saveCustomPlaylists(list) {
-        try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-        } catch (e) {}
-    }
-
-    function loadPlaylistSongs() {
-        try {
-            const raw = localStorage.getItem(SYSTEM_KEY);
-            if (raw) return JSON.parse(raw) || {};
-        } catch (e) {}
-        return {};
-    }
-
-    function savePlaylistSongs(map) {
-        try {
-            localStorage.setItem(SYSTEM_KEY, JSON.stringify(map));
-        } catch (e) {}
-    }
-
-    /* ---------- Built-in playlists ---------- */
+    /* Built-in playlists */
     const BUILT_IN = [
         { name: 'Night Drive', icon: 'fa-moon', gradient: 'linear-gradient(145deg, #5a4a8a, #3d3260)' },
         { name: 'Morning Dew', icon: 'fa-cloud-sun', gradient: 'linear-gradient(145deg, #2a4a6e, #1a2f4a)' },
@@ -48,48 +13,50 @@ window.Playlists = (function () {
         { name: 'Indie Folk', icon: 'fa-guitar', gradient: 'linear-gradient(145deg, #2a5a5a, #1a3d3d)' }
     ];
 
+    let customPlaylists = []; /* [{ name, icon, gradient }] */
+    let playlistSongs = {};   /* { playlistName: [trackId, ...] } */
+
+    let modalOverlay, openModalBtn, closeModalBtn, cancelModalBtn,
+        savePlaylistBtn, playlistNameInput, playlistsGroup;
+
+    /* ============================================================
+       GETTERS
+    ============================================================ */
     function getAllPlaylists() {
-        const custom = loadCustomPlaylists().map((name, i) => {
-            const gradients = [
-                'linear-gradient(145deg, #7c3aed, #4c1d95)',
-                'linear-gradient(145deg, #059669, #047857)',
-                'linear-gradient(145deg, #d97706, #b45309)',
-                'linear-gradient(145deg, #db2777, #9d174d)'
-            ];
-            return {
-                name,
-                icon: 'fa-compact-disc',
-                gradient: gradients[i % gradients.length],
-                isCustom: true
-            };
-        });
-        return [...BUILT_IN, ...custom];
+        return [...BUILT_IN, ...customPlaylists];
     }
 
-    /* ---------- Song helpers ---------- */
+    function getSongsInPlaylist(playlistName) {
+        return (playlistSongs[playlistName] || []).slice();
+    }
+
+    /* ============================================================
+       ADD / REMOVE SONGS
+    ============================================================ */
     function addSongToPlaylist(playlistName, trackId) {
         if (!playlistName || trackId === undefined) return false;
-        const map = loadPlaylistSongs();
-        if (!map[playlistName]) map[playlistName] = [];
-        if (map[playlistName].includes(trackId)) return false;
-        map[playlistName].push(trackId);
-        savePlaylistSongs(map);
+        if (!playlistSongs[playlistName]) playlistSongs[playlistName] = [];
+        if (playlistSongs[playlistName].includes(trackId)) return false;
+        playlistSongs[playlistName].push(trackId);
+        syncToFirestore();
         return true;
     }
 
     function removeSongFromPlaylist(playlistName, trackId) {
-        const map = loadPlaylistSongs();
-        if (!map[playlistName]) return;
-        map[playlistName] = map[playlistName].filter(id => id !== trackId);
-        savePlaylistSongs(map);
+        if (!playlistSongs[playlistName]) return;
+        playlistSongs[playlistName] = playlistSongs[playlistName].filter(id => id !== trackId);
+        syncToFirestore();
     }
 
-    function getSongsInPlaylist(playlistName) {
-        const map = loadPlaylistSongs();
-        return map[playlistName] || [];
+    function syncToFirestore() {
+        if (window.Firestore && window.Firestore.isReady()) {
+            window.Firestore.savePlaylists(customPlaylists, playlistSongs);
+        }
     }
 
-    /* ---------- Play playlist ---------- */
+    /* ============================================================
+       PLAY
+    ============================================================ */
     function playPlaylist(playlistName) {
         const songIds = getSongsInPlaylist(playlistName);
         const tracks = window.tracks || [];
@@ -108,14 +75,12 @@ window.Playlists = (function () {
         }
     }
 
-    /* ---------- Sidebar playlists ---------- */
-    function renderNewPlaylist(name, isNew = true) {
+    /* ============================================================
+       RENDER SIDEBAR PLAYLISTS
+    ============================================================ */
+    function renderNewPlaylist(name, isNew) {
+        if (isNew === undefined) isNew = true;
         if (!name || !name.trim()) return;
-
-        const newPl = document.createElement('div');
-        newPl.className = 'playlist-mini';
-        newPl.setAttribute('data-title', name);
-        newPl.setAttribute('data-playlist-name', name);
 
         const gradients = [
             'linear-gradient(145deg, #7c3aed, #4c1d95)',
@@ -123,7 +88,12 @@ window.Playlists = (function () {
             'linear-gradient(145deg, #d97706, #b45309)',
             'linear-gradient(145deg, #db2777, #9d174d)'
         ];
-        const bg = gradients[Math.floor(Math.random() * gradients.length)];
+        const bg = gradients[customPlaylists.length % gradients.length];
+
+        const newPl = document.createElement('div');
+        newPl.className = 'playlist-mini';
+        newPl.setAttribute('data-title', name);
+        newPl.setAttribute('data-playlist-name', name);
 
         newPl.innerHTML = `
             <div class="playlist-mini-art" style="background:${bg}">
@@ -136,16 +106,19 @@ window.Playlists = (function () {
         newPl.addEventListener('click', () => playPlaylist(name));
 
         if (isNew) {
-            const saved = loadCustomPlaylists();
-            saved.push(name);
-            saveCustomPlaylists(saved);
+            customPlaylists.push({ name: name, icon: 'fa-compact-disc', gradient: bg });
+            syncToFirestore();
         }
     }
 
     function loadSavedPlaylists() {
-        const saved = loadCustomPlaylists();
-        saved.forEach(name => renderNewPlaylist(name, false));
+        /* Render all custom playlists from memory */
+        customPlaylists.forEach(pl => {
+            const exists = document.querySelector('.playlist-mini[data-playlist-name="' + pl.name + '"]');
+            if (!exists) renderNewPlaylist(pl.name, false);
+        });
 
+        /* Wire existing ones */
         document.querySelectorAll('.playlist-mini').forEach(item => {
             if (item._plBound) return;
             item._plBound = true;
@@ -155,24 +128,17 @@ window.Playlists = (function () {
         });
     }
 
-    /* ---------- Dropdown ---------- */
+    /* ============================================================
+       DROPDOWN
+    ============================================================ */
     function renderPlaylistDropdown() {
         const list = document.getElementById('playlist-dropdown-list');
-        if (!list) {
-            console.warn('[Playlists] Dropdown list element missing!');
-            return;
-        }
+        if (!list) return;
 
         const playlists = getAllPlaylists();
-        console.log('[Playlists] Rendering dropdown with', playlists.length, 'playlists');
 
         if (!playlists.length) {
-            list.innerHTML = `
-                <div class="playlist-dropdown-empty">
-                    <i class="fas fa-folder-plus"></i>
-                    No playlists yet
-                </div>
-            `;
+            list.innerHTML = '<div class="playlist-dropdown-empty"><i class="fas fa-folder-plus"></i>No playlists yet</div>';
             return;
         }
 
@@ -191,51 +157,39 @@ window.Playlists = (function () {
             `;
         }).join('');
 
-               list.querySelectorAll('.playlist-dropdown-item').forEach(item => {
+        list.querySelectorAll('.playlist-dropdown-item').forEach(item => {
             item.addEventListener('click', () => {
-                /* 🔐 Login required for adding to playlist */
+                /* Login required */
                 if (window.Auth && !window.Auth.isLoggedIn()) {
                     window.Auth.requireLogin(() => {
                         const playlistName = item.getAttribute('data-playlist');
-                        const currentIdx = window.Player?.getIndex ? window.Player.getIndex() : 0;
-                        const track = (window.tracks || [])[currentIdx];
-                        if (!track) return;
-
-                        const added = addSongToPlaylist(playlistName, track.id);
-
-                        if (window.BottomNav && window.BottomNav.showToast) {
-                            window.BottomNav.showToast(
-                                added
-                                    ? `Added "${track.title}" to ${playlistName}`
-                                    : `Already in ${playlistName}`
-                            );
-                        }
-                        setTimeout(() => closePlaylistDropdown(), 300);
+                        addSongFromCurrent(playlistName);
                     }, 'add to playlists');
                     return;
                 }
-
                 const playlistName = item.getAttribute('data-playlist');
-                const currentIdx = window.Player?.getIndex ? window.Player.getIndex() : 0;
-                const track = (window.tracks || [])[currentIdx];
-                if (!track) return;
-
-                const added = addSongToPlaylist(playlistName, track.id);
-
-                if (window.BottomNav && window.BottomNav.showToast) {
-                    window.BottomNav.showToast(
-                        added
-                            ? `Added "${track.title}" to ${playlistName}`
-                            : `Already in ${playlistName}`
-                    );
-                }
-                setTimeout(() => closePlaylistDropdown(), 300);
+                addSongFromCurrent(playlistName);
             });
         });
     }
 
+    function addSongFromCurrent(playlistName) {
+        const currentIdx = window.Player && window.Player.getIndex ? window.Player.getIndex() : 0;
+        const track = (window.tracks || [])[currentIdx];
+        if (!track) return;
+
+        const added = addSongToPlaylist(playlistName, track.id);
+
+        if (window.BottomNav && window.BottomNav.showToast) {
+            window.BottomNav.showToast(added
+                ? 'Added "' + track.title + '" to ' + playlistName
+                : 'Already in ' + playlistName);
+        }
+
+        setTimeout(() => closePlaylistDropdown(), 300);
+    }
+
     function openPlaylistDropdown() {
-        console.log('[Playlists] Opening dropdown');
         renderPlaylistDropdown();
         const dd = document.getElementById('playlist-dropdown');
         if (dd) dd.classList.add('open');
@@ -248,15 +202,14 @@ window.Playlists = (function () {
 
     function togglePlaylistDropdown() {
         const dd = document.getElementById('playlist-dropdown');
-        if (!dd) {
-            console.warn('[Playlists] Dropdown element not found!');
-            return;
-        }
+        if (!dd) return;
         if (dd.classList.contains('open')) closePlaylistDropdown();
         else openPlaylistDropdown();
     }
 
-    /* ---------- Create playlist modal ---------- */
+    /* ============================================================
+       MODAL
+    ============================================================ */
     function openModal() {
         if (modalOverlay) {
             modalOverlay.classList.add('active');
@@ -271,10 +224,10 @@ window.Playlists = (function () {
         }
     }
 
-    /* ---------- Init ---------- */
+    /* ============================================================
+       INIT
+    ============================================================ */
     function init() {
-        console.log('[Playlists] Initializing...');
-
         modalOverlay = document.getElementById('playlist-modal');
         openModalBtn = document.getElementById('btn-open-playlist-modal');
         closeModalBtn = document.getElementById('btn-close-modal');
@@ -283,14 +236,10 @@ window.Playlists = (function () {
         playlistNameInput = document.getElementById('playlist-name-input');
         playlistsGroup = document.getElementById('playlists-group');
 
-        /* Modal controls */
         if (openModalBtn) {
             openModalBtn.addEventListener('click', () => {
-                /* 🔐 Login required for creating playlists */
                 if (window.Auth && !window.Auth.isLoggedIn()) {
-                    window.Auth.requireLogin(() => {
-                        openModal();
-                    }, 'create playlists');
+                    window.Auth.requireLogin(openModal, 'create playlists');
                     return;
                 }
                 openModal();
@@ -312,7 +261,7 @@ window.Playlists = (function () {
                     renderNewPlaylist(val, true);
                     closeModal();
                     if (window.BottomNav && window.BottomNav.showToast) {
-                        window.BottomNav.showToast(`Created "${val}"`);
+                        window.BottomNav.showToast('Created "' + val + '"');
                     }
                 }
             });
@@ -327,23 +276,19 @@ window.Playlists = (function () {
             });
         }
 
-        /* 🔴 Mini player ➕ button → open dropdown */
         const miniAddBtn = document.getElementById('mini-add-btn');
-        console.log('[Playlists] Mini add button:', miniAddBtn);
-
         if (miniAddBtn) {
             miniAddBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 e.preventDefault();
-                console.log('[Playlists] ➕ clicked!');
+                if (window.Auth && !window.Auth.isLoggedIn()) {
+                    window.Auth.requireLogin(togglePlaylistDropdown, 'add to playlists');
+                    return;
+                }
                 togglePlaylistDropdown();
             });
-            console.log('[Playlists] ➕ button wired up');
-        } else {
-            console.warn('[Playlists] ❌ mini-add-btn NOT FOUND in DOM!');
         }
 
-        /* Dropdown close button */
         const ddClose = document.getElementById('playlist-dropdown-close');
         if (ddClose) {
             ddClose.addEventListener('click', (e) => {
@@ -352,7 +297,6 @@ window.Playlists = (function () {
             });
         }
 
-        /* Click outside → close */
         document.addEventListener('click', (e) => {
             const dd = document.getElementById('playlist-dropdown');
             const btn = document.getElementById('mini-add-btn');
@@ -362,15 +306,29 @@ window.Playlists = (function () {
             closePlaylistDropdown();
         });
 
-        /* Escape closes */
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') closePlaylistDropdown();
         });
 
-        /* Load saved playlists */
         loadSavedPlaylists();
 
-        console.log('[Playlists] ✅ Init complete. Custom playlists:', loadCustomPlaylists().length);
+        /* 🔴 LOAD FROM FIRESTORE on login */
+        window.addEventListener('auth:changed', function () {
+            if (!window.Auth || !window.Auth.isLoggedIn()) return;
+            if (!window.Firestore || !window.Firestore.isReady()) return;
+
+            console.log('[Playlists] Loading from Firestore...');
+            window.Firestore.loadPlaylists().then(function (data) {
+                if (data) {
+                    customPlaylists = data.playlists || [];
+                    playlistSongs = data.songsMap || {};
+                    loadSavedPlaylists();
+                    console.log('[Playlists] ✅ Loaded from Firestore:', customPlaylists.length, 'playlists');
+                }
+            });
+        });
+
+        console.log('[Playlists] Init complete (Firestore synced)');
     }
 
     return {
@@ -378,6 +336,7 @@ window.Playlists = (function () {
         addSongToPlaylist,
         removeSongFromPlaylist,
         getSongsInPlaylist,
+        getAllPlaylists,
         playPlaylist,
         openPlaylistDropdown,
         closePlaylistDropdown,

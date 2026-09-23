@@ -1,53 +1,33 @@
 /* ==================================================================
-   FOLLOWS.JS — Artist follow/unfollow system (robust)
-   - Toggle follow state
-   - Persist in localStorage
-   - Render "Following" page
-   - Event delegation for clicks
+   FOLLOWS.JS — Follow system (Firestore synced)
    Exposes: window.Follows
 ================================================================== */
 
 window.Follows = (function () {
 
-    const STORAGE_KEY = 'reverb_followed_artists';
+    /* In-memory store */
+    let followed = []; /* [{ name, image }] */
 
-    /* ---------- Load / save ---------- */
-    function load() {
-        try {
-            const raw = localStorage.getItem(STORAGE_KEY);
-            if (raw) {
-                const arr = JSON.parse(raw);
-                return Array.isArray(arr) ? arr : [];
-            }
-        } catch (e) {}
-        return [];
-    }
-
-    function save(list) {
-        try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-        } catch (e) {}
-    }
-
-    /* ---------- Public helpers ---------- */
+    /* ============================================================
+       PUBLIC HELPERS
+    ============================================================ */
     function isFollowing(name) {
         if (!name) return false;
-        return load().some(a => a.name === name);
+        return followed.some(a => a.name === name);
     }
 
     function follow(name, image) {
         if (!name) return;
-        const list = load();
-        if (list.some(a => a.name === name)) return;
-        list.push({ name, image: image || '' });
-        save(list);
+        if (followed.some(a => a.name === name)) return;
+        followed.push({ name: name, image: image || '' });
+        syncToFirestore();
         dispatchUpdate();
     }
 
     function unfollow(name) {
         if (!name) return;
-        const list = load().filter(a => a.name !== name);
-        save(list);
+        followed = followed.filter(a => a.name !== name);
+        syncToFirestore();
         dispatchUpdate();
     }
 
@@ -62,22 +42,42 @@ window.Follows = (function () {
         }
     }
 
+    function getAll() {
+        return followed.slice();
+    }
+
+    function setAll(list) {
+        followed = (list || []).slice();
+        dispatchUpdate();
+    }
+
+    function clearAll() {
+        followed = [];
+        dispatchUpdate();
+    }
+
+    function syncToFirestore() {
+        if (window.Firestore && window.Firestore.isReady()) {
+            window.Firestore.saveFollows(followed);
+        }
+    }
+
     function dispatchUpdate() {
         try {
-            window.dispatchEvent(new CustomEvent('follows:updated', { detail: load() }));
+            window.dispatchEvent(new CustomEvent('follows:updated', { detail: followed.slice() }));
         } catch (e) {}
     }
 
-    /* ---------- Render "Following" page ---------- */
+    /* ============================================================
+       RENDER FOLLOWING PAGE
+    ============================================================ */
     function render() {
         const grid = document.getElementById('followed-grid');
         const empty = document.getElementById('followed-empty');
         const countText = document.getElementById('followed-count-text');
         if (!grid) return;
 
-        const list = load();
-
-        if (!list.length) {
+        if (!followed.length) {
             grid.innerHTML = '';
             if (empty) empty.style.display = 'flex';
             if (countText) countText.textContent = '0 artists';
@@ -85,9 +85,9 @@ window.Follows = (function () {
         }
 
         if (empty) empty.style.display = 'none';
-        if (countText) countText.textContent = `${list.length} artist${list.length > 1 ? 's' : ''}`;
+        if (countText) countText.textContent = `${followed.length} artist${followed.length > 1 ? 's' : ''}`;
 
-        grid.innerHTML = list.map(artist => `
+        grid.innerHTML = followed.map(artist => `
             <div class="followed-card" data-artist-name="${artist.name}">
                 <div class="followed-card-art">
                     <img src="${artist.image || 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=200&h=200&fit=crop'}" alt="${artist.name}">
@@ -97,7 +97,6 @@ window.Follows = (function () {
             </div>
         `).join('');
 
-        /* Click → open artist profile */
         grid.querySelectorAll('.followed-card').forEach(card => {
             card.addEventListener('click', () => {
                 const name = card.getAttribute('data-artist-name');
@@ -108,13 +107,11 @@ window.Follows = (function () {
         });
     }
 
-    /* ---------- Open "Following" page ---------- */
     function openPage() {
         render();
         if (window.Pages) window.Pages.navigate('followed');
     }
 
-    /* ---------- Sync follow button on artist profile ---------- */
     function syncFollowButton(artistName, image) {
         const btn = document.getElementById('artist-follow-btn');
         if (!btn) return;
@@ -125,17 +122,15 @@ window.Follows = (function () {
             ? '<i class="fas fa-check"></i> Following'
             : '<i class="fas fa-plus"></i> Follow';
 
-        /* Store current artist info on the button for the global handler */
-        btn.dataset.artistName = artistName;
+        btn.dataset.artistName = artistName || '';
         btn.dataset.artistImage = image || '';
     }
 
-    /* ---------- Init ---------- */
+    /* ============================================================
+       INIT
+    ============================================================ */
     function init() {
-        /* ---- GLOBAL CLICK DELEGATION for follow button ----
-           This is the KEY fix — the listener survives even if
-           pages.js or others re-render the button. */
-                document.addEventListener('click', (e) => {
+        document.addEventListener('click', (e) => {
             const btn = e.target.closest('#artist-follow-btn');
             if (!btn) return;
 
@@ -151,7 +146,7 @@ window.Follows = (function () {
 
             if (!artistName) return;
 
-            /* 🔐 Login required for following */
+            /* Login required */
             if (window.Auth && !window.Auth.isLoggedIn()) {
                 window.Auth.requireLogin(() => {
                     const nowFollowing = toggle(artistName, artistImg);
@@ -180,14 +175,26 @@ window.Follows = (function () {
             }
         });
 
-        /* Re-render following page if visible */
         window.addEventListener('follows:updated', () => {
-            if (document.body.classList.contains('page-followed')) {
-                render();
-            }
+            if (document.body.classList.contains('page-followed')) render();
         });
 
-        console.log('[Follows] Loaded.');
+        /* 🔴 LOAD FROM FIRESTORE on login */
+        window.addEventListener('auth:changed', function () {
+            if (!window.Auth || !window.Auth.isLoggedIn()) return;
+            if (!window.Firestore || !window.Firestore.isReady()) return;
+
+            console.log('[Follows] Loading from Firestore...');
+            window.Firestore.loadFollows().then(function (list) {
+                if (list && Array.isArray(list)) {
+                    followed = list.slice();
+                    if (document.body.classList.contains('page-followed')) render();
+                    console.log('[Follows] ✅ Loaded from Firestore:', list.length, 'artists');
+                }
+            });
+        });
+
+        console.log('[Follows] Module loaded (Firestore synced)');
     }
 
     return {
@@ -196,6 +203,9 @@ window.Follows = (function () {
         follow,
         unfollow,
         toggle,
+        getAll,
+        setAll,
+        clearAll,
         openPage,
         render,
         syncFollowButton

@@ -1,141 +1,109 @@
 /* ==================================================================
-   LIKES.JS — Universal like system (works EVERYWHERE in the app)
-   - Any .song-like heart click anywhere → toggle + persist
-   - Auto-detects track via data-track-id, data-track-index, or title/artist
-   - Syncs hearts everywhere (home, recent, liked, artist, search, etc.)
-   - Uses MutationObserver to auto-sync dynamically added hearts
-   Exposes: window.Likes → { init, isLiked, toggle, getAll,
-                             renderLikedPage, syncAllHearts, getTrackId }
+   LIKES.JS — Like system (Firestore synced)
+   Exposes: window.Likes
 ================================================================== */
 
 window.Likes = (function () {
 
-    const STORAGE_KEY = 'reverb_liked_songs';
+    /* In-memory store */
+    let likedIds = [];
 
-    /* ---------- Load / save ---------- */
-    function load() {
-        try {
-            const raw = localStorage.getItem(STORAGE_KEY);
-            if (raw) {
-                const arr = JSON.parse(raw);
-                return Array.isArray(arr) ? arr : [];
-            }
-        } catch (e) {}
-        return [];
-    }
-
-    function save(ids) {
-        try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(ids));
-        } catch (e) {}
-    }
-
-    /* ---------- Public helpers ---------- */
+    /* ============================================================
+       PUBLIC HELPERS
+    ============================================================ */
     function isLiked(trackId) {
         if (trackId === undefined || trackId === null) return false;
-        return load().includes(Number(trackId));
+        return likedIds.includes(Number(trackId));
     }
 
     function toggle(trackId) {
         if (trackId === undefined || trackId === null) return false;
         const id = Number(trackId);
-        const ids = load();
-        const idx = ids.indexOf(id);
+        const idx = likedIds.indexOf(id);
 
         if (idx === -1) {
-            ids.unshift(id);
-            save(ids);
-            dispatchUpdate();
-            return true;
+            likedIds.unshift(id);
         } else {
-            ids.splice(idx, 1);
-            save(ids);
-            dispatchUpdate();
-            return false;
+            likedIds.splice(idx, 1);
         }
+
+        /* Sync to Firestore */
+        if (window.Firestore && window.Firestore.isReady()) {
+            window.Firestore.saveLikes(likedIds);
+        }
+
+        dispatchUpdate();
+        return idx === -1;
     }
 
     function getAll() {
-        return load();
+        return likedIds.slice();
+    }
+
+    function setAll(ids) {
+        likedIds = (ids || []).map(Number);
+        dispatchUpdate();
+    }
+
+    function clearAll() {
+        likedIds = [];
+        dispatchUpdate();
     }
 
     function dispatchUpdate() {
         try {
-            window.dispatchEvent(new CustomEvent('likes:updated', { detail: load() }));
+            window.dispatchEvent(new CustomEvent('likes:updated', { detail: likedIds.slice() }));
         } catch (e) {}
     }
 
-    /* ----------------------------------------------------------------
-       UNIVERSAL track ID resolver
-       Strategy order:
-         1. data-track-id attribute (most reliable)
-         2. data-track-index → tracks[] lookup
-         3. Match title + artist against tracks[]
-    ---------------------------------------------------------------- */
+    /* ============================================================
+       TRACK ID RESOLVER (works everywhere)
+    ============================================================ */
     function getTrackId(el) {
         if (!el) return null;
 
-        /* --- 1) data-track-id --- */
         const direct = el.getAttribute && el.getAttribute('data-track-id');
         if (direct !== null && direct !== undefined && direct !== '') {
             const n = Number(direct);
             if (!isNaN(n)) return n;
         }
 
-        /* --- 2) data-track-index on closest row --- */
         const row = el.closest('.song-row, .music-card, .suggestion-item, .library-item, .followed-card');
         if (row) {
             const idxAttr = row.getAttribute('data-track-index');
             if (idxAttr !== null) {
                 const idx = parseInt(idxAttr, 10);
                 const tracks = window.tracks || [];
-                if (!isNaN(idx) && tracks[idx]) {
-                    return tracks[idx].id;
-                }
+                if (!isNaN(idx) && tracks[idx]) return tracks[idx].id;
             }
 
-            /* data-track-id on row itself */
             const rowId = row.getAttribute('data-track-id');
             if (rowId !== null && rowId !== undefined && rowId !== '') {
                 const n = Number(rowId);
                 if (!isNaN(n)) return n;
             }
 
-            /* --- 3) Match by title + artist --- */
             const titleEl = row.querySelector('.song-title, .card-title, .suggestion-title');
             if (titleEl) {
                 const title = titleEl.textContent.trim().toLowerCase();
-                /* Remove any <mark> tags effect by getting textContent */
                 const artistEl = row.querySelector('.song-artist, .card-artist, .suggestion-artist');
-                const artist = artistEl
-                    ? artistEl.textContent.replace(/^\s*/, '').trim().toLowerCase()
-                    : '';
-
+                const artist = artistEl ? artistEl.textContent.replace(/^\s*/, '').trim().toLowerCase() : '';
                 const tracks = window.tracks || [];
                 let found = tracks.find(t =>
-                    t.title.toLowerCase() === title &&
-                    (!artist || t.artist.toLowerCase() === artist)
+                    t.title.toLowerCase() === title && (!artist || t.artist.toLowerCase() === artist)
                 );
-
-                /* Fallback: match only by title */
-                if (!found) {
-                    found = tracks.find(t => t.title.toLowerCase() === title);
-                }
-
+                if (!found) found = tracks.find(t => t.title.toLowerCase() === title);
                 if (found) return found.id;
             }
         }
-
         return null;
     }
 
-    /* ---------- Update single heart visual ---------- */
     function updateHeartVisual(heartEl, liked) {
         if (!heartEl) return;
         heartEl.classList.toggle('active', liked);
     }
 
-    /* ---------- Sync every heart on the page ---------- */
     function syncAllHearts(root) {
         const scope = root || document;
         scope.querySelectorAll('.song-like').forEach(heart => {
@@ -145,18 +113,16 @@ window.Likes = (function () {
         });
     }
 
-    /* ----------------------------------------------------------------
-       Render Liked Songs page (from localStorage)
-    ---------------------------------------------------------------- */
+    /* ============================================================
+       RENDER LIKED PAGE
+    ============================================================ */
     function renderLikedPage() {
         const list = document.getElementById('liked-list');
         const empty = document.getElementById('liked-empty');
         const countText = document.getElementById('liked-count-text');
         if (!list) return;
 
-        const likedIds = load();
         const tracks = window.tracks || [];
-
         const likedTracks = likedIds
             .map(id => {
                 const track = tracks.find(t => t.id === id);
@@ -174,9 +140,7 @@ window.Likes = (function () {
         }
 
         if (empty) empty.style.display = 'none';
-        if (countText) {
-            countText.textContent = `${likedTracks.length} song${likedTracks.length > 1 ? 's' : ''}`;
-        }
+        if (countText) countText.textContent = `${likedTracks.length} song${likedTracks.length > 1 ? 's' : ''}`;
 
         likedTracks.forEach(({ track, trackIndex }) => {
             const row = document.createElement('div');
@@ -197,18 +161,14 @@ window.Likes = (function () {
             list.appendChild(row);
         });
 
-        /* Wire click on rows → play */
         list.querySelectorAll('.song-row').forEach(row => {
             row.addEventListener('click', (e) => {
                 if (e.target.classList.contains('song-like')) return;
                 const idx = parseInt(row.getAttribute('data-track-index'), 10);
-                if (!isNaN(idx) && window.Player) {
-                    window.Player.loadTrack(idx, true);
-                }
+                if (!isNaN(idx) && window.Player) window.Player.loadTrack(idx, true);
             });
         });
 
-        /* Wire likes inside this list — remove row on unlike */
         list.querySelectorAll('.song-like').forEach(heart => {
             heart.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -216,9 +176,7 @@ window.Likes = (function () {
                 const id = Number(heart.getAttribute('data-track-id'));
                 if (isNaN(id)) return;
                 toggle(id);
-                /* Re-render since row should disappear */
                 setTimeout(renderLikedPage, 60);
-
                 if (window.BottomNav && window.BottomNav.showToast) {
                     const t = tracks.find(tr => tr.id === id);
                     window.BottomNav.showToast(t ? `Removed ${t.title}` : 'Removed');
@@ -226,17 +184,14 @@ window.Likes = (function () {
             });
         });
 
-        /* Sync hearts once more */
         syncAllHearts(list);
     }
 
-    /* ----------------------------------------------------------------
+    /* ============================================================
        INIT
-    ---------------------------------------------------------------- */
+    ============================================================ */
     function init() {
-
-        /* ---- GLOBAL click delegation for ANY .song-like ---- */
-               document.addEventListener('click', (e) => {
+        document.addEventListener('click', (e) => {
             const heart = e.target.closest('.song-like');
             if (!heart) return;
 
@@ -248,10 +203,9 @@ window.Likes = (function () {
             const trackId = getTrackId(heart);
             if (trackId === null) return;
 
-            /* 🔐 Login required for liking */
+            /* Login required */
             if (window.Auth && !window.Auth.isLoggedIn()) {
                 window.Auth.requireLogin(() => {
-                    /* After login, do the like */
                     const nowLiked = toggle(trackId);
                     updateHeartVisual(heart, nowLiked);
                     if (window.BottomNav && window.BottomNav.showToast) {
@@ -274,43 +228,40 @@ window.Likes = (function () {
             }
         });
 
-        /* Sync hearts on load */
         syncAllHearts();
+        window.addEventListener('likes:updated', () => syncAllHearts());
 
-        /* Re-sync whenever likes change */
-        window.addEventListener('likes:updated', () => {
-            syncAllHearts();
-        });
-
-        /* ----------------------------------------------------------------
-           MutationObserver — watch for dynamically added hearts
-           (Recently Played, Liked, Search, Artist Profile renders, etc.)
-        ---------------------------------------------------------------- */
+        /* Watch dynamic hearts */
         const observer = new MutationObserver((mutations) => {
             let shouldSync = false;
             mutations.forEach(m => {
                 m.addedNodes.forEach(node => {
                     if (node.nodeType !== 1) return;
-                    if (node.classList && node.classList.contains('song-like')) {
-                        shouldSync = true;
-                    }
-                    if (node.querySelector && node.querySelector('.song-like')) {
-                        shouldSync = true;
-                    }
+                    if (node.classList && node.classList.contains('song-like')) shouldSync = true;
+                    if (node.querySelector && node.querySelector('.song-like')) shouldSync = true;
                 });
             });
-            if (shouldSync) {
-                /* Defer to next frame so DOM settles */
-                requestAnimationFrame(() => syncAllHearts());
-            }
+            if (shouldSync) requestAnimationFrame(() => syncAllHearts());
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+
+        /* 🔴 LOAD FROM FIRESTORE on login */
+        window.addEventListener('auth:changed', function () {
+            if (!window.Auth || !window.Auth.isLoggedIn()) return;
+            if (!window.Firestore || !window.Firestore.isReady()) return;
+
+            console.log('[Likes] Loading from Firestore...');
+            window.Firestore.loadLikes().then(function (ids) {
+                if (ids && Array.isArray(ids)) {
+                    likedIds = ids.map(Number);
+                    syncAllHearts();
+                    if (document.body.classList.contains('page-liked')) renderLikedPage();
+                    console.log('[Likes] ✅ Loaded from Firestore:', ids.length, 'songs');
+                }
+            });
         });
 
-        observer.observe(document.body, {
-            childList: true,
-            subtree: true
-        });
-
-        console.log('[Likes] Module loaded. Liked songs:', load().length);
+        console.log('[Likes] Module loaded (Firestore synced)');
     }
 
     return {
@@ -318,6 +269,8 @@ window.Likes = (function () {
         isLiked,
         toggle,
         getAll,
+        setAll,
+        clearAll,
         syncAllHearts,
         renderLikedPage,
         getTrackId

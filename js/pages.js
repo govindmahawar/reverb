@@ -116,7 +116,19 @@ window.Pages = (function () {
     }
 
     /* ---------- Navigate to a page ---------- */
+    /* ---------- Current page tracker ---------- */
+    let currentPage = 'home';
+
     function navigate(pageKey, options = {}) {
+        /* 🔴 Push to browser history for back button support */
+        if (!options.skipHistory && pageKey !== currentPage) {
+            try {
+                history.pushState({ page: pageKey, reverbPage: true }, '', '#' + pageKey);
+            } catch (e) {}
+        }
+
+        currentPage = pageKey;
+
         clearAllPageClasses();
 
         if (pageKey === 'home') {
@@ -492,6 +504,32 @@ window.Pages = (function () {
             wrapped._wrapped = true;
             window.Player.loadTrack = wrapped;
         }
+
+        /* ============================================================
+           🔴 HANDLE BROWSER BACK BUTTON (mobile + desktop)
+           - Agar kisi page pe ho (not home) → home pe jao
+           - Agar home pe ho → browser ko normally exit karne do
+        ============================================================ */
+        window.addEventListener('popstate', function (event) {
+            console.log('[Pages] Back button pressed');
+
+            /* If we are not on home, go back to home */
+            if (currentPage !== 'home') {
+                /* Prevent default exit — go home instead */
+                try {
+                    history.pushState({ page: 'home', reverbPage: true }, '', '#home');
+                } catch (e) {}
+
+                navigate('home', { skipHistory: true });
+                console.log('[Pages] Navigated back to home');
+            }
+            /* If already on home, let browser handle exit naturally */
+        });
+
+        /* Initialize history state on load */
+        try {
+            history.replaceState({ page: 'home', reverbPage: true }, '', '#home');
+        } catch (e) {}
 
         console.log('[Pages] Init complete.');
     }

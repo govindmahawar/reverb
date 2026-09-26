@@ -1424,8 +1424,10 @@ body::after {
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    background: transparent;
-    border: none;
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
     color: rgba(255, 255, 255, 0.75) !important;
     font-size: 1.3rem;
     display: inline-flex;
@@ -1433,12 +1435,15 @@ body::after {
     justify-content: center;
     cursor: pointer;
     transition: color 0.2s ease, transform 0.15s ease, background 0.2s ease;
-    -webkit-tap-highlight-color: transparent;
+    -webkit-tap-highlight-color: transparent !important;
+    -webkit-appearance: none !important;
+    appearance: none !important;
     outline: none;
     flex-shrink: 0;
     padding: 0;
     line-height: 1;
     margin-left: 4px;
+    font-family: inherit;
 }
 
 .mini-like-btn i {
@@ -2306,6 +2311,9 @@ body::after {
         height: 40px;
         font-size: 1.2rem;
         margin-left: 2px;
+        background: transparent !important;
+        background-color: transparent !important;
+        border: none !important;
     }
 
     .mini-like-btn i {
@@ -2439,6 +2447,9 @@ body::after {
         height: 36px;
         font-size: 1.1rem;
         margin-left: 0;
+        background: transparent !important;
+        background-color: transparent !important;
+        border: none !important;
     }
 
     .mini-like-btn i {
@@ -7747,4 +7758,26 @@ body.page-admin .album-page {
         transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1),
                     opacity 0.3s ease;
     }
+}
+
+/* ==================================================================
+   🚨 EMERGENCY FIX — Mini Player Visible
+================================================================== */
+
+.player-dock {
+    visibility: visible !important;
+    display: flex !important;
+}
+
+.player-dock.visible {
+    transform: translateY(0) !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
+/* If not visible, keep it off-screen but ready */
+.player-dock:not(.visible) {
+    transform: translateY(120%) !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
 }

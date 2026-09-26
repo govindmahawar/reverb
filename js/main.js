@@ -1,24 +1,21 @@
 /* ==================================================================
    MAIN.JS — Entry point
    Order matters:
-     1. AUTH FIRST (so other modules can check login)
+     0. Performance (perf.js)
+     1. Auth FIRST
      2. Core modules (Player, Sidebar, Search)
-     3. UserData (likes + follows + playlists — 1 file)
-     4. User features (Profile, Settings, Accounts)
-     5. Profile dropdown (uses Auth)
-     6. Admin (uses Auth)
-     7. Cards, Pages, BottomNav
-     8. Preload first track
+     3. UserData (likes + follows + playlists)
+     4. Swipe gestures (mobile)
+     5. User features (ProfileEdit, Settings, Accounts)
+     6. Profile dropdown
+     7. Admin panel
+     8. Cards, Navigation, Pages, NowPlaying, Albums, BottomNav
+     9. Preload first track
 ================================================================== */
 
 document.addEventListener('DOMContentLoaded', function () {
 
-    /* ------------------------------------------------------------
-       0. PERFORMANCE FIRST
-    ------------------------------------------------------------ */
-    if (window.Perf) {
-        try { window.Perf.init(); } catch (e) {}
-    }
+
 
     /* ------------------------------------------------------------
        1. AUTH
@@ -41,17 +38,21 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     /* ------------------------------------------------------------
-       3. USERDATA — Likes + Follows + Playlists (all in one)
+       3. USERDATA — Likes + Follows + Playlists
     ------------------------------------------------------------ */
     if (window.UserData) {
         try { window.UserData.init(); } catch (e) { console.error('[Main] UserData init error:', e); }
     }
+
+    /* ------------------------------------------------------------
+       4. SWIPE GESTURES (mobile only)
+    ------------------------------------------------------------ */
     if (window.Swipe) {
         try { window.Swipe.init(); } catch (e) { console.error('[Main] Swipe init error:', e); }
     }
 
     /* ------------------------------------------------------------
-       4. USER FEATURES
+       5. USER FEATURES
     ------------------------------------------------------------ */
     if (window.ProfileEdit) {
         try { window.ProfileEdit.init(); } catch (e) { console.error('[Main] ProfileEdit init error:', e); }
@@ -64,21 +65,21 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     /* ------------------------------------------------------------
-       5. PROFILE DROPDOWN (needs Auth)
+       6. PROFILE DROPDOWN
     ------------------------------------------------------------ */
     if (window.Profile) {
         try { window.Profile.init(); } catch (e) { console.error('[Main] Profile init error:', e); }
     }
 
     /* ------------------------------------------------------------
-       6. ADMIN (needs Auth)
+       7. ADMIN (needs Auth)
     ------------------------------------------------------------ */
     if (window.Admin) {
         try { window.Admin.init(); } catch (e) { console.error('[Main] Admin init error:', e); }
     }
 
     /* ------------------------------------------------------------
-       7. REST
+       8. REST
     ------------------------------------------------------------ */
     if (window.Cards) {
         try { window.Cards.init(); } catch (e) { console.error('[Main] Cards init error:', e); }
@@ -100,11 +101,21 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     /* ------------------------------------------------------------
-       8. PRELOAD FIRST TRACK (no autoplay)
+       9. PRELOAD FIRST TRACK (no autoplay)
     ------------------------------------------------------------ */
     if (window.Player && window.tracks && window.tracks.length) {
         try { window.Player.loadTrack(0, false); } catch (e) {}
     }
 
-    console.log('[Main] ✅ All modules initialized.');
+      /* Final log */
+    if (window.__originalConsoleLog) {
+        window.__originalConsoleLog('%c✅ [Main] All modules initialized', 'color:#4ade80;font-weight:bold;font-size:13px');
+    }
+
+    /* 🔴 Perf LAST — after everything loaded */
+    setTimeout(function () {
+        if (window.Perf) {
+            try { window.Perf.init(); } catch (e) {}
+        }
+    }, 500);
 });

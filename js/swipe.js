@@ -1,19 +1,16 @@
 /* ==================================================================
-   SWIPE.JS — Touch swipe gestures for mobile
-   - Now Playing: Swipe Right = Next, Swipe Left = Previous, Swipe Down = Close
-   - Mini Player: Swipe Up = Open fullscreen
+   SWIPE.JS — Touch swipe gestures for mobile (improved)
    Exposes: window.Swipe
 ================================================================== */
 
 window.Swipe = (function () {
 
-    /* Config */
-    var SWIPE_MIN_DISTANCE = 60;   /* Minimum px to count as swipe */
-    var SWIPE_MAX_TIME = 600;      /* Max time (ms) for swipe */
-    var DIRECTION_RATIO = 1.3;     /* Horizontal must be > vertical * ratio */
+    var SWIPE_MIN_DISTANCE = 50;
+    var SWIPE_MAX_TIME = 700;
+    var DIRECTION_RATIO = 1.2;
 
     /* ================================================================
-       CORE — Detect swipe on an element
+       CORE DETECT
     ================================================================ */
     function detectSwipe(el, callbacks) {
         if (!el) return null;
@@ -46,43 +43,40 @@ window.Swipe = (function () {
             var deltaY = touch.clientY - startY;
             var elapsed = Date.now() - startTime;
 
-            /* Too slow — ignore */
             if (elapsed > SWIPE_MAX_TIME) return;
 
             var absX = Math.abs(deltaX);
             var absY = Math.abs(deltaY);
 
-            /* ---------- HORIZONTAL ---------- */
+            console.log('[Swipe] deltaX:', deltaX.toFixed(0), 'deltaY:', deltaY.toFixed(0), 'time:', elapsed + 'ms');
+
+            /* HORIZONTAL */
             if (absX > absY * DIRECTION_RATIO && absX > SWIPE_MIN_DISTANCE) {
                 if (deltaX > 0) {
-                    /* Swipe RIGHT */
                     if (callbacks.onRight) callbacks.onRight(e);
                 } else {
-                    /* Swipe LEFT */
                     if (callbacks.onLeft) callbacks.onLeft(e);
                 }
                 return;
             }
 
-            /* ---------- VERTICAL ---------- */
+            /* VERTICAL */
             if (absY > absX * DIRECTION_RATIO && absY > SWIPE_MIN_DISTANCE) {
                 if (deltaY > 0) {
-                    /* Swipe DOWN */
                     if (callbacks.onDown) callbacks.onDown(e);
                 } else {
-                    /* Swipe UP */
                     if (callbacks.onUp) callbacks.onUp(e);
                 }
             }
         }
 
-        function onCancel() {
-            tracking = false;
-        }
+        function onCancel() { tracking = false; }
 
         el.addEventListener('touchstart', onStart, { passive: true });
         el.addEventListener('touchend', onEnd, { passive: true });
         el.addEventListener('touchcancel', onCancel, { passive: true });
+
+        console.log('[Swipe] Attached to:', el.id || el.className);
 
         return function destroy() {
             el.removeEventListener('touchstart', onStart);
@@ -92,99 +86,77 @@ window.Swipe = (function () {
     }
 
     /* ================================================================
-       1. NOW PLAYING — Swipe Right, Left, Down
+       1. NOW PLAYING — Right, Left, Down
     ================================================================ */
     function setupNowPlayingSwipes() {
         var np = document.getElementById('now-playing-fullscreen');
         if (!np) {
-            console.log('[Swipe] Now Playing element not found');
+            console.warn('[Swipe] Now Playing not found');
             return;
         }
 
         detectSwipe(np, {
-            /* 👉 Swipe RIGHT = NEXT song */
             onRight: function () {
-                console.log('[Swipe] Now Playing: RIGHT → Next');
-                var nextBtn = document.getElementById('np-next-btn');
-                if (nextBtn) {
-                    nextBtn.click();
-                } else if (window.Player && window.Player.next) {
-                    window.Player.next();
-                }
+                console.log('[Swipe] RIGHT → Next');
+                var btn = document.getElementById('np-next-btn');
+                if (btn) btn.click();
             },
-
-            /* 👈 Swipe LEFT = PREVIOUS song */
             onLeft: function () {
-                console.log('[Swipe] Now Playing: LEFT → Previous');
-                var prevBtn = document.getElementById('np-prev-btn');
-                if (prevBtn) {
-                    prevBtn.click();
-                } else if (window.Player && window.Player.prev) {
-                    window.Player.prev();
-                }
+                console.log('[Swipe] LEFT → Previous');
+                var btn = document.getElementById('np-prev-btn');
+                if (btn) btn.click();
             },
-
-            /* 👇 Swipe DOWN = CLOSE fullscreen */
             onDown: function () {
-                console.log('[Swipe] Now Playing: DOWN → Close');
-                var closeBtn = document.getElementById('np-close-btn');
-                if (closeBtn) {
-                    closeBtn.click();
-                } else if (window.NowPlaying && window.NowPlaying.close) {
-                    window.NowPlaying.close();
-                }
+                console.log('[Swipe] DOWN → Close');
+                var btn = document.getElementById('np-close-btn');
+                if (btn) btn.click();
             }
         });
-
-        console.log('[Swipe] ✅ Now Playing swipes ready (Right/Left/Down)');
     }
 
     /* ================================================================
-       2. MINI PLAYER — Swipe Up = Open fullscreen
+       2. MINI PLAYER — Up
     ================================================================ */
     function setupMiniPlayerSwipes() {
         var mini = document.getElementById('mini-player');
         if (!mini) {
-            console.log('[Swipe] Mini player element not found');
+            console.warn('[Swipe] Mini player not found');
             return;
         }
 
         detectSwipe(mini, {
-            /* ☝️ Swipe UP = OPEN fullscreen */
             onUp: function () {
-                console.log('[Swipe] Mini Player: UP → Open fullscreen');
+                console.log('[Swipe] UP → Open fullscreen');
                 if (window.NowPlaying && window.NowPlaying.open) {
                     window.NowPlaying.open();
                 } else {
-                    /* Fallback: click player-left */
-                    var playerLeft = document.getElementById('mini-player-left');
-                    if (playerLeft) playerLeft.click();
+                    var left = document.getElementById('mini-player-left');
+                    if (left) left.click();
                 }
             }
         });
-
-        console.log('[Swipe] ✅ Mini player swipe ready (Up)');
     }
 
     /* ================================================================
        INIT
     ================================================================ */
     function init() {
-        /* Only enable on touch devices */
         var isTouchDevice = ('ontouchstart' in window) ||
             (navigator.maxTouchPoints > 0) ||
             (navigator.msMaxTouchPoints > 0);
 
+        console.log('[Swipe] Touch device:', isTouchDevice);
+
         if (!isTouchDevice) {
-            console.log('[Swipe] Desktop detected — swipes disabled');
+            console.log('[Swipe] Desktop — skipping');
             return;
         }
 
-        /* Wait for DOM to be fully ready */
+        /* Setup after DOM ready */
         setTimeout(function () {
             setupNowPlayingSwipes();
             setupMiniPlayerSwipes();
-            console.log('[Swipe] ✅ All swipe gestures initialized');
+            console.log('[Swipe] ✅ Initialized');
         }, 500);
     }
 

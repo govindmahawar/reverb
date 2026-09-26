@@ -90,7 +90,7 @@
                     </div>
                 </div>
 
-                <!-- mini playlists -->
+                <!-- mini playlists — only custom (added by JS) -->
                 <div class="nav-group" id="playlists-group">
                     <div class="nav-group-header">
                         <div class="nav-group-label" style="padding:0;">Playlists</div>
@@ -98,22 +98,7 @@
                             <i class="fas fa-plus"></i>
                         </button>
                     </div>
-                    <div class="playlist-mini" data-title="Night Drive">
-                        <div class="playlist-mini-art pa-1"><i class="fas fa-moon"></i></div>
-                        <span>Night Drive</span>
-                    </div>
-                    <div class="playlist-mini" data-title="Morning Dew">
-                        <div class="playlist-mini-art pa-2"><i class="fas fa-cloud-sun"></i></div>
-                        <span>Morning Dew</span>
-                    </div>
-                    <div class="playlist-mini" data-title="Focus Deep">
-                        <div class="playlist-mini-art pa-3"><i class="fas fa-headphones"></i></div>
-                        <span>Focus Deep</span>
-                    </div>
-                    <div class="playlist-mini" data-title="Indie Folk">
-                        <div class="playlist-mini-art pa-4"><i class="fas fa-guitar"></i></div>
-                        <span>Indie Folk</span>
-                    </div>
+                    <!-- Custom playlists will be added here by JS -->
                 </div>
             </div>
         </aside>
@@ -143,7 +128,7 @@
                     </div>
                 </div>
 
-                <!-- 👑 ADMIN BUTTON (only for owner, laptop only) -->
+                <!-- Admin button (owner only, desktop only) -->
                 <button class="admin-trigger-btn" id="admin-trigger-btn" title="Admin Panel" style="display:none;">
                     <i class="fas fa-crown"></i>
                     <span>Admin</span>
@@ -354,17 +339,6 @@
                 </div>
             </div>
 
-
-                        <!-- ============================================
-                 👑 ADMIN ADDED SONGS (dynamic — only shows if songs exist)
-            ============================================ -->
-            <div class="section-head" id="admin-songs-section-head" style="display:none;">
-                <h3>👑 admin picks <small>newly added</small></h3>
-                <a href="#">view all <i class="fas fa-arrow-right" style="font-size:0.7rem;"></i></a>
-            </div>
-            <div class="song-list" id="admin-songs-list-home"></div>
-
-
             <!-- LATE NIGHT PICKS -->
             <div class="section-head">
                 <h3>for late hours <small>chill & unwind</small></h3>
@@ -482,10 +456,9 @@
             </div>
 
             <!-- ============================================
-                 LIBRARY PAGE (mobile — Spotify style)
+                 LIBRARY PAGE
             ============================================ -->
             <section class="library-page" id="library-page">
-                <!-- Header -->
                 <div class="library-header">
                     <div class="library-header-top">
                         <div class="library-avatar">G</div>
@@ -498,7 +471,6 @@
                         </button>
                     </div>
 
-                    <!-- Tabs -->
                     <div class="library-tabs" role="tablist">
                         <button class="library-tab active" data-tab="playlists">Playlists</button>
                         <button class="library-tab" data-tab="artists">Artists</button>
@@ -507,7 +479,6 @@
                     </div>
                 </div>
 
-                <!-- Filter chips -->
                 <div class="library-chips">
                     <button class="lib-chip active">Recents</button>
                     <button class="lib-chip">Downloaded</button>
@@ -522,49 +493,10 @@
                         </div>
                         <div class="library-liked-info">
                             <span class="library-liked-title">Liked Songs</span>
-                            <span class="library-liked-meta">Playlist · 42 songs</span>
+                            <span class="library-liked-meta">Playlist · 0 songs</span>
                         </div>
                     </div>
-
-                    <div class="library-item" data-play-target="0">
-                        <div class="library-item-art" style="background: linear-gradient(145deg, #5a4a8a, #3d3260);">
-                            <i class="fas fa-moon"></i>
-                        </div>
-                        <div class="library-item-info">
-                            <span class="library-item-title">Night Drive</span>
-                            <span class="library-item-meta">Playlist · Lumen & Echo</span>
-                        </div>
-                    </div>
-
-                    <div class="library-item" data-play-target="1">
-                        <div class="library-item-art" style="background: linear-gradient(145deg, #2a4a6e, #1a2f4a);">
-                            <i class="fas fa-cloud-sun"></i>
-                        </div>
-                        <div class="library-item-info">
-                            <span class="library-item-title">Morning Dew</span>
-                            <span class="library-item-meta">Playlist · Aurora Fields</span>
-                        </div>
-                    </div>
-
-                    <div class="library-item" data-play-target="2">
-                        <div class="library-item-art" style="background: linear-gradient(145deg, #6e3a5a, #4a253d);">
-                            <i class="fas fa-headphones"></i>
-                        </div>
-                        <div class="library-item-info">
-                            <span class="library-item-title">Focus Deep</span>
-                            <span class="library-item-meta">Playlist · Kaya</span>
-                        </div>
-                    </div>
-
-                    <div class="library-item" data-play-target="3">
-                        <div class="library-item-art" style="background: linear-gradient(145deg, #2a5a5a, #1a3d3d);">
-                            <i class="fas fa-guitar"></i>
-                        </div>
-                        <div class="library-item-info">
-                            <span class="library-item-title">Indie Folk</span>
-                            <span class="library-item-meta">Playlist · Nocturne Club</span>
-                        </div>
-                    </div>
+                    <!-- Custom playlists will be added here by JS -->
                 </div>
 
                 <!-- Tab Content: ARTISTS -->
@@ -578,7 +510,6 @@
                             <span class="library-item-meta">Artist</span>
                         </div>
                     </div>
-
                     <div class="library-item" data-play-target="1">
                         <div class="library-item-art library-artist-art">
                             <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=100&h=100&fit=crop" alt="Aurora Fields">
@@ -588,7 +519,6 @@
                             <span class="library-item-meta">Artist</span>
                         </div>
                     </div>
-
                     <div class="library-item" data-play-target="2">
                         <div class="library-item-art library-artist-art">
                             <img src="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=100&h=100&fit=crop" alt="Kaya">
@@ -598,7 +528,6 @@
                             <span class="library-item-meta">Artist</span>
                         </div>
                     </div>
-
                     <div class="library-item" data-play-target="3">
                         <div class="library-item-art library-artist-art">
                             <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=100&h=100&fit=crop" alt="Nocturne Club">
@@ -621,7 +550,6 @@
                             <span class="library-item-meta">Album · Lumen & Echo</span>
                         </div>
                     </div>
-
                     <div class="library-item" data-play-target="1">
                         <div class="library-item-art">
                             <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=100&h=100&fit=crop" alt="Fresh Drops">
@@ -631,7 +559,6 @@
                             <span class="library-item-meta">Album · Aurora Fields</span>
                         </div>
                     </div>
-
                     <div class="library-item" data-play-target="2">
                         <div class="library-item-art">
                             <img src="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=100&h=100&fit=crop" alt="Oceanic">
@@ -641,7 +568,6 @@
                             <span class="library-item-meta">Album · Kaya</span>
                         </div>
                     </div>
-
                     <div class="library-item" data-play-target="3">
                         <div class="library-item-art">
                             <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=100&h=100&fit=crop" alt="After Hours">
@@ -664,7 +590,7 @@
             </section>
 
             <!-- ============================================
-                 SEARCH PAGE (mobile — full-page search)
+                 SEARCH PAGE
             ============================================ -->
             <section class="search-page" id="search-page">
                 <div class="search-page-header">
@@ -677,7 +603,6 @@
                     </div>
                 </div>
 
-                <!-- Live suggestions appear here while typing -->
                 <div class="search-suggestions" id="search-suggestions"></div>
 
                 <div class="search-page-body" id="search-page-body">
@@ -815,7 +740,7 @@
             </section>
 
             <!-- ============================================
-                 ARTIST PROFILE PAGE (dynamic content)
+                 ARTIST PROFILE PAGE
             ============================================ -->
             <section class="artist-profile-page" id="artist-profile-page">
                 <button class="artist-back-btn" id="artist-back-btn">
@@ -869,49 +794,8 @@
                     <p>All your curated collections</p>
                 </div>
 
-                <div class="playlists-page-grid">
-                    <div class="pl-card" data-play-target="0">
-                        <div class="pl-art" style="background: linear-gradient(145deg, #5a4a8a, #3d3260);">
-                            <i class="fas fa-moon"></i>
-                        </div>
-                        <span class="pl-title">Night Drive</span>
-                        <span class="pl-meta">24 songs</span>
-                    </div>
-                    <div class="pl-card" data-play-target="1">
-                        <div class="pl-art" style="background: linear-gradient(145deg, #2a4a6e, #1a2f4a);">
-                            <i class="fas fa-cloud-sun"></i>
-                        </div>
-                        <span class="pl-title">Morning Dew</span>
-                        <span class="pl-meta">18 songs</span>
-                    </div>
-                    <div class="pl-card" data-play-target="2">
-                        <div class="pl-art" style="background: linear-gradient(145deg, #6e3a5a, #4a253d);">
-                            <i class="fas fa-headphones"></i>
-                        </div>
-                        <span class="pl-title">Focus Deep</span>
-                        <span class="pl-meta">32 songs</span>
-                    </div>
-                    <div class="pl-card" data-play-target="3">
-                        <div class="pl-art" style="background: linear-gradient(145deg, #2a5a5a, #1a3d3d);">
-                            <i class="fas fa-guitar"></i>
-                        </div>
-                        <span class="pl-title">Indie Folk</span>
-                        <span class="pl-meta">27 songs</span>
-                    </div>
-                    <div class="pl-card" data-play-target="4">
-                        <div class="pl-art" style="background: linear-gradient(145deg, #8b5cf6, #6d28d9);">
-                            <i class="fas fa-heart"></i>
-                        </div>
-                        <span class="pl-title">Liked Songs</span>
-                        <span class="pl-meta">42 songs</span>
-                    </div>
-                    <div class="pl-card" data-play-target="5">
-                        <div class="pl-art" style="background: linear-gradient(145deg, #ec4899, #be185d);">
-                            <i class="fas fa-fire"></i>
-                        </div>
-                        <span class="pl-title">Workout Mix</span>
-                        <span class="pl-meta">30 songs</span>
-                    </div>
+                <div class="playlists-page-grid" id="playlists-page-grid">
+                    <!-- Custom playlists will be added by JS -->
                 </div>
             </section>
 
@@ -964,7 +848,7 @@
             </section>
 
             <!-- ============================================
-                 ALBUM DETAIL PAGE (dynamic)
+                 ALBUM DETAIL PAGE
             ============================================ -->
             <section class="album-page" id="album-page">
                 <button class="artist-back-btn" id="album-back-btn">
@@ -1097,7 +981,6 @@
                         </select>
                     </div>
 
-                    <!-- 🎨 Accent Color Picker -->
                     <div class="settings-item settings-item-color">
                         <div class="settings-item-label">
                             <span class="settings-item-title">Accent Color</span>
@@ -1194,7 +1077,7 @@
                     </button>
                 </div>
 
-                <!-- ⚠️ DANGER ZONE — Delete Account (only when logged in) -->
+                <!-- Danger Zone -->
                 <div class="settings-group settings-danger-group" id="danger-zone-group" style="display:none;">
                     <h3 class="settings-group-title settings-danger-title">
                         <i class="fas fa-triangle-exclamation"></i>
@@ -1205,7 +1088,7 @@
                         <div class="settings-danger-info">
                             <span class="settings-danger-heading">Delete Account</span>
                             <span class="settings-danger-desc">
-                                Permanently delete your account and all data (likes, playlists, follows). 
+                                Permanently delete your account and all data (likes, playlists, follows).
                                 This action cannot be undone.
                             </span>
                         </div>
@@ -1234,7 +1117,7 @@
             </section>
 
             <!-- ============================================
-                 👑 ADMIN PANEL (laptop only, owner only)
+                 ADMIN PAGE
             ============================================ -->
             <section class="admin-page" id="admin-page">
                 <div class="admin-header">
@@ -1251,7 +1134,6 @@
                     </button>
                 </div>
 
-                <!-- Stats -->
                 <div class="admin-stats">
                     <div class="admin-stat-card">
                         <span class="admin-stat-num" id="admin-stat-total">0</span>
@@ -1267,10 +1149,8 @@
                     </div>
                 </div>
 
-                <!-- Songs List -->
                 <div class="admin-songs-list" id="admin-songs-list"></div>
 
-                <!-- Empty state -->
                 <div class="library-empty" id="admin-empty" style="display:none;">
                     <i class="fas fa-music"></i>
                     <p>No songs yet</p>
@@ -1280,7 +1160,9 @@
         </main>
     </div>
 
-    <!-- ---- MINI PLAYER (Spotify-style popup) ---- -->
+    <!-- ============================================
+         MINI PLAYER (Spotify-style popup)
+    ============================================ -->
     <div class="player-dock liquid-glass" id="mini-player">
         <audio id="audio-player" preload="auto"></audio>
 
@@ -1300,7 +1182,7 @@
             </div>
         </div>
 
-        <!-- Quick controls (visible in mini) -->
+        <!-- Quick controls (mobile) -->
         <div class="mini-controls">
             <i class="fas fa-backward-step" id="prev-btn" title="Previous Track"></i>
             <i class="fas fa-play-circle" id="main-play-btn" title="Play / Pause"></i>
@@ -1323,27 +1205,25 @@
             </div>
         </div>
 
+        <!-- Right side: volume, repeat, shuffle, like -->
         <div class="player-right">
             <span class="mini-time mobile-only" id="mini-time">0:00 / 3:42</span>
+
             <div class="volume-box">
                 <i class="fas fa-volume-high" id="volume-btn" title="Mute / Unmute"></i>
                 <input type="range" id="volume-slider" min="0" max="1" step="0.02" value="0.8" title="Volume">
             </div>
+
             <i class="fas fa-repeat" id="repeat-btn" title="Toggle Repeat"></i>
             <i class="fas fa-shuffle" id="shuffle-btn" title="Toggle Shuffle"></i>
 
-            <!-- ➕ Add to playlist button -->
-            <button class="mini-add-btn" id="mini-add-btn" title="Add to playlist" type="button">
-                <i class="fas fa-plus"></i>
-            </button>
-
-            <!-- Shuffle button (right corner) -->
-            <button class="mini-shuffle-btn" id="mini-shuffle-btn" title="Shuffle" type="button">
-                <i class="fas fa-shuffle"></i>
+            <!-- ❤️ Like button -->
+            <button class="mini-like-btn" id="mini-like-btn" title="Like song" type="button">
+                <i class="fas fa-heart"></i>
             </button>
         </div>
 
-        <!-- Add-to-playlist dropdown -->
+        <!-- Playlist dropdown (Add to playlist) -->
         <div class="playlist-dropdown" id="playlist-dropdown">
             <div class="playlist-dropdown-header">
                 <span>Add to playlist</span>
@@ -1351,13 +1231,13 @@
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <div class="playlist-dropdown-list" id="playlist-dropdown-list">
-                <!-- Playlists injected by JS -->
-            </div>
+            <div class="playlist-dropdown-list" id="playlist-dropdown-list"></div>
         </div>
     </div>
 
-    <!-- ---- MOBILE BOTTOM NAV (only visible on mobile) ---- -->
+    <!-- ============================================
+         MOBILE BOTTOM NAV
+    ============================================ -->
     <nav class="mobile-bottom-nav" id="mobile-bottom-nav">
         <button class="mbn-item active" data-nav="home" aria-label="Home">
             <i class="fas fa-house"></i>
@@ -1385,7 +1265,6 @@
          NOW PLAYING FULL SCREEN
     ============================================ -->
     <div class="now-playing-fullscreen" id="now-playing-fullscreen">
-        <!-- Top bar -->
         <div class="np-topbar">
             <button class="np-close-btn" id="np-close-btn" aria-label="Close">
                 <i class="fas fa-chevron-down"></i>
@@ -1399,14 +1278,12 @@
             </button>
         </div>
 
-        <!-- Album Art -->
         <div class="np-art-wrap">
             <div class="np-art" id="np-art">
                 <img src="" alt="" id="np-art-img">
             </div>
         </div>
 
-        <!-- Track Info + Like -->
         <div class="np-track-row">
             <div class="np-track-info">
                 <h2 class="np-track-title" id="np-track-title">Track Title</h2>
@@ -1417,7 +1294,6 @@
             </button>
         </div>
 
-        <!-- Progress Bar (scrubbable) -->
         <div class="np-progress-wrap">
             <div class="np-progress-container">
                 <div class="np-progress-fill" id="np-progress-fill"></div>
@@ -1429,7 +1305,6 @@
             </div>
         </div>
 
-        <!-- Controls -->
         <div class="np-controls">
             <button class="np-ctrl-btn" id="np-shuffle-btn" aria-label="Shuffle">
                 <i class="fas fa-shuffle"></i>
@@ -1448,7 +1323,6 @@
             </button>
         </div>
 
-        <!-- Bottom Bar: Lyrics toggle + Volume -->
         <div class="np-bottombar">
             <button class="np-lyrics-btn" id="np-lyrics-btn">
                 <i class="fas fa-microphone-lines"></i>
@@ -1460,7 +1334,6 @@
             </div>
         </div>
 
-        <!-- Lyrics Panel (slides up) -->
         <div class="np-lyrics-panel" id="np-lyrics-panel">
             <div class="np-lyrics-header">
                 <h3>Lyrics</h3>
@@ -1468,21 +1341,15 @@
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <div class="np-lyrics-body" id="np-lyrics-body">
-                <!-- Filled dynamically -->
-            </div>
+            <div class="np-lyrics-body" id="np-lyrics-body"></div>
         </div>
     </div>
 
-
-
-        <!-- ============================================
-         🔐 AUTH MODAL (Login / Signup)
+    <!-- ============================================
+         AUTH MODAL (Login / Signup)
     ============================================ -->
     <div class="modal-overlay auth-modal" id="auth-modal">
         <div class="modal-card auth-card">
-
-            <!-- Header -->
             <div class="auth-header">
                 <div class="auth-logo">
                     <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#b8a8e0" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
@@ -1496,22 +1363,17 @@
                 </button>
             </div>
 
-            <!-- Tabs -->
             <div class="auth-tabs">
                 <button class="auth-tab active" data-tab="login">Log in</button>
                 <button class="auth-tab" data-tab="signup">Sign up</button>
             </div>
 
-            <!-- Title -->
             <div class="auth-title-wrap">
                 <h2 id="auth-title">Welcome back</h2>
                 <p id="auth-subtitle">Log in to save your likes & playlists</p>
             </div>
 
-            <!-- Form -->
             <div class="auth-form">
-
-                <!-- Name (signup only) -->
                 <div class="form-group auth-name-group" id="auth-name-group" style="display:none;">
                     <label for="auth-name">Full Name</label>
                     <input type="text" id="auth-name" placeholder="Your name" autocomplete="name">
@@ -1527,26 +1389,21 @@
                     <input type="password" id="auth-password" placeholder="••••••••" autocomplete="current-password">
                 </div>
 
-                <!-- Forgot password (login only) -->
                 <div class="auth-forgot-wrap" id="auth-forgot-wrap">
                     <button type="button" class="auth-forgot-btn" id="auth-forgot-btn">Forgot password?</button>
                 </div>
 
-                <!-- Error message -->
                 <div class="auth-error" id="auth-error" style="display:none;"></div>
 
-                <!-- Submit -->
                 <button class="btn-primary auth-submit-btn" id="auth-submit-btn">
                     <i class="fas fa-sign-in-alt"></i>
                     <span id="auth-submit-text">Log in</span>
                 </button>
 
-                <!-- Divider -->
                 <div class="auth-divider">
                     <span>or continue with</span>
                 </div>
 
-                <!-- Social buttons (future Firebase) -->
                 <div class="auth-social">
                     <button class="auth-social-btn" id="auth-google-btn" type="button">
                         <i class="fab fa-google"></i>
@@ -1558,18 +1415,17 @@
                     </button>
                 </div>
 
-                <!-- Info -->
                 <div class="auth-info">
                     <i class="fas fa-info-circle"></i>
                     <span id="auth-info-text">No account? Sign up is free and takes 10 seconds.</span>
                 </div>
-
             </div>
         </div>
     </div>
 
-
-    <!-- ---- CREATE PLAYLIST MODAL ---- -->
+    <!-- ============================================
+         CREATE PLAYLIST MODAL
+    ============================================ -->
     <div class="modal-overlay" id="playlist-modal">
         <div class="modal-card">
             <div class="modal-header">
@@ -1587,8 +1443,82 @@
         </div>
     </div>
 
+    <!-- ============================================
+         ADD ACCOUNT MODAL
+    ============================================ -->
+    <div class="modal-overlay" id="add-account-modal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-plus"></i> Add Account</h3>
+                <button class="modal-close" id="add-account-close"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="account-list" id="account-list"></div>
+                <div class="account-new-form">
+                    <label for="new-account-name">New Account</label>
+                    <input type="text" id="new-account-name" placeholder="Name">
+                    <input type="email" id="new-account-email" placeholder="Email" style="margin-top:10px;">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="add-account-cancel">Cancel</button>
+                <button class="btn-primary" id="add-account-save">
+                    <i class="fas fa-plus"></i>
+                    Add Account
+                </button>
+            </div>
+        </div>
+    </div>
 
-        <!-- ---- 👑 ADMIN: SONG EDITOR MODAL ---- -->
+    <!-- ============================================
+         DELETE ACCOUNT MODAL
+    ============================================ -->
+    <div class="modal-overlay delete-account-modal" id="delete-account-modal">
+        <div class="modal-card delete-account-card">
+            <div class="delete-account-header">
+                <div class="delete-account-icon">
+                    <i class="fas fa-triangle-exclamation"></i>
+                </div>
+                <h2>Delete Account?</h2>
+                <p>
+                    This will permanently delete your account and all your data.
+                    This action <strong>cannot be undone</strong>.
+                </p>
+            </div>
+
+            <div class="delete-account-body">
+                <div class="form-group">
+                    <label for="delete-confirm-input">
+                        Type <strong>DELETE</strong> to confirm
+                    </label>
+                    <input type="text" id="delete-confirm-input" placeholder="DELETE" autocomplete="off">
+                </div>
+
+                <div class="form-group">
+                    <label for="delete-password-input">
+                        Enter your password
+                    </label>
+                    <input type="password" id="delete-password-input" placeholder="Your current password" autocomplete="current-password">
+                </div>
+
+                <div class="delete-account-error" id="delete-account-error" style="display:none;"></div>
+            </div>
+
+            <div class="delete-account-footer">
+                <button class="btn-secondary" id="delete-account-cancel">
+                    Cancel
+                </button>
+                <button class="delete-account-confirm-btn" id="delete-account-confirm" disabled>
+                    <i class="fas fa-trash"></i>
+                    Delete Forever
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+         ADMIN: SONG EDITOR MODAL
+    ============================================ -->
     <div class="modal-overlay admin-modal" id="admin-song-modal">
         <div class="modal-card admin-modal-card">
             <div class="modal-header">
@@ -1600,7 +1530,6 @@
             </div>
 
             <div class="modal-body admin-modal-body">
-
                 <div class="admin-form-row">
                     <div class="form-group">
                         <label for="admin-input-title">Song Title *</label>
@@ -1636,7 +1565,7 @@
 
                 <div class="form-group">
                     <label for="admin-input-cover">Cover Image URL</label>
-                    <input type="url" id="admin-input-cover" placeholder="https://... (paste image URL from Google / GitHub)">
+                    <input type="url" id="admin-input-cover" placeholder="https://... (paste image URL)">
                     <div class="admin-input-hint">
                         <i class="fas fa-info-circle"></i>
                         Google Images → right-click → "Copy image address" → paste here
@@ -1657,7 +1586,6 @@
                     <textarea id="admin-input-lyrics" rows="5" placeholder="Paste lyrics here..."></textarea>
                 </div>
 
-                <!-- Live Preview -->
                 <div class="admin-preview">
                     <span class="admin-preview-label">Live Preview</span>
                     <div class="admin-preview-card">
@@ -1675,7 +1603,6 @@
                     <input type="checkbox" id="admin-input-published" checked>
                     <span>Publish immediately (visible to all users)</span>
                 </label>
-
             </div>
 
             <div class="modal-footer">
@@ -1688,90 +1615,17 @@
         </div>
     </div>
 
-        <!-- ---- ⚠️ DELETE ACCOUNT CONFIRMATION MODAL ---- -->
-    <div class="modal-overlay delete-account-modal" id="delete-account-modal">
-        <div class="modal-card delete-account-card">
-            <div class="delete-account-header">
-                <div class="delete-account-icon">
-                    <i class="fas fa-triangle-exclamation"></i>
-                </div>
-                <h2>Delete Account?</h2>
-                <p>
-                    This will permanently delete your account and all your data. 
-                    This action <strong>cannot be undone</strong>.
-                </p>
-            </div>
-
-            <div class="delete-account-body">
-                <div class="form-group">
-                    <label for="delete-confirm-input">
-                        Type <strong>DELETE</strong> to confirm
-                    </label>
-                    <input type="text" id="delete-confirm-input" placeholder="DELETE" autocomplete="off">
-                </div>
-
-                <div class="form-group">
-                    <label for="delete-password-input">
-                        Enter your password
-                    </label>
-                    <input type="password" id="delete-password-input" placeholder="Your current password" autocomplete="current-password">
-                </div>
-
-                <div class="delete-account-error" id="delete-account-error" style="display:none;"></div>
-            </div>
-
-            <div class="delete-account-footer">
-                <button class="btn-secondary" id="delete-account-cancel">
-                    Cancel
-                </button>
-                <button class="delete-account-confirm-btn" id="delete-account-confirm" disabled>
-                    <i class="fas fa-trash"></i>
-                    Delete Forever
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ---- ADD ACCOUNT MODAL ---- -->
-    <div class="modal-overlay" id="add-account-modal">
-        <div class="modal-card">
-            <div class="modal-header">
-                <h3><i class="fas fa-user-plus"></i> Add Account</h3>
-                <button class="modal-close" id="add-account-close"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body">
-
-                <!-- Existing accounts list -->
-                <div class="account-list" id="account-list"></div>
-
-                <!-- Add new account form -->
-                <div class="account-new-form">
-                    <label for="new-account-name">New Account</label>
-                    <input type="text" id="new-account-name" placeholder="Name">
-                    <input type="email" id="new-account-email" placeholder="Email" style="margin-top:10px;">
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn-secondary" id="add-account-cancel">Cancel</button>
-                <button class="btn-primary" id="add-account-save">
-                    <i class="fas fa-plus"></i>
-                    Add Account
-                </button>
-            </div>
-        </div>
-    </div>
-
     <!-- ============ SCRIPTS (order matters!) ============ -->
-       <!-- ============ SCRIPTS (order matters!) ============ -->
+    <script src="js/perf.js"></script>
     <script src="js/firebase-config.js"></script>
     <script src="js/data.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/firestore.js"></script>
+    <script src="js/userData.js"></script>
+    <script src="js/swipe.js"></script>
     <script src="js/player.js"></script>
     <script src="js/sidebar.js"></script>
     <script src="js/search.js"></script>
-    <script src="js/likes.js"></script>
-    <script src="js/playlists.js"></script>
     <script src="js/profile.js"></script>
     <script src="js/cards.js"></script>
     <script src="js/navigation.js"></script>
@@ -1779,10 +1633,8 @@
     <script src="js/profile-edit.js"></script>
     <script src="js/settings.js"></script>
     <script src="js/accounts.js"></script>
-    <script src="js/follows.js"></script>
     <script src="js/now-playing.js"></script>
     <script src="js/albums.js"></script>
-    <script src="js/github-sync.js"></script>
     <script src="js/admin.js"></script>
     <script src="js/bottom-nav.js"></script>
     <script src="js/main.js"></script>

@@ -1,5 +1,5 @@
 /* ==================================================================
-   AUTH.JS — Firebase Authentication (Email + Google Popup)
+   AUTH.JS — Firebase Authentication (Email + Google)
    Exposes: window.Auth
 ================================================================== */
 
@@ -43,6 +43,14 @@ window.Auth = (function () {
         updateProfileUI();
         dispatchUserUpdate();
         updateAdminAccess();
+
+        /* 🔴 Immediate UserData load */
+        if (user && !user.isGuest && window.UserData && window.UserData.loadAllFromFirestore) {
+            setTimeout(function () {
+                window._userDataLoaded = false;
+                window.UserData.loadAllFromFirestore(true);
+            }, 100);
+        }
     }
 
     /* ============================================================
@@ -81,7 +89,7 @@ window.Auth = (function () {
     /* ============================================================
        LOGOUT
     ============================================================ */
-       function logout() {
+    function logout() {
         console.log('[Auth] Logging out...');
 
         if (window._verifyCheckInterval) {
@@ -110,20 +118,13 @@ window.Auth = (function () {
 
         try { localStorage.removeItem('reverb_user_profile'); } catch (e) {}
 
-        try {
-            if (window.Likes && window.Likes.clearAll) window.Likes.clearAll();
-            if (window.Follows && window.Follows.clearAll) window.Follows.clearAll();
-        } catch (e) {}
+        /* 🔴 Reset load flag (don't clear memory — will be overwritten on next load) */
+        window._userDataLoaded = false;
 
-        /* 🔴 RESET LOAD FLAGS — so next login re-loads from Firestore */
-        window._likesLoaded = false;
-        window._followsLoaded = false;
-        window._playlistsLoaded = false;
-
-        /* 🔴 CLEAR CUSTOM PLAYLIST UI */
+        /* Clear only UI */
         try {
-            document.querySelectorAll('.playlist-mini[data-playlist-name]').forEach(el => el.remove());
-            document.querySelectorAll('.library-item[data-playlist-name]').forEach(el => el.remove());
+            document.querySelectorAll('.playlist-mini[data-custom="true"]').forEach(function (el) { el.remove(); });
+            document.querySelectorAll('.library-item[data-custom="true"]').forEach(function (el) { el.remove(); });
         } catch (e) {}
 
         if (window.Pages) {
@@ -138,7 +139,7 @@ window.Auth = (function () {
             window.BottomNav.showToast('Logged out — continuing as guest');
         }
 
-        console.log('[Auth] Logout complete. Load flags reset.');
+        console.log('[Auth] ✅ Logout complete. Load flag reset.');
     }
 
     /* ============================================================
@@ -180,9 +181,10 @@ window.Auth = (function () {
                 try { localStorage.removeItem('reverb_user_profile'); } catch (e) {}
 
                 try {
-                    if (window.Likes && window.Likes.clearAll) window.Likes.clearAll();
-                    if (window.Follows && window.Follows.clearAll) window.Follows.clearAll();
+                    if (window.UserData && window.UserData.clearAll) window.UserData.clearAll();
                 } catch (e) {}
+
+                window._userDataLoaded = false;
 
                 if (window.Pages) {
                     try { window.Pages.navigate('home'); } catch (e) {}
@@ -422,6 +424,14 @@ window.Auth = (function () {
                 window.Firestore.saveProfile(user);
             }
 
+            /* 🔴 IMMEDIATE UserData load */
+            setTimeout(function () {
+                if (window.UserData && window.UserData.loadAllFromFirestore) {
+                    window._userDataLoaded = false;
+                    window.UserData.loadAllFromFirestore(true);
+                }
+            }, 100);
+
             closeModal();
             setLoading(false);
 
@@ -459,8 +469,7 @@ window.Auth = (function () {
     }
 
     /* ============================================================
-       GOOGLE SIGN-IN — POPUP METHOD
-       (Redirect se better — instant result, no page reload)
+       GOOGLE SIGN-IN — POPUP
     ============================================================ */
     function handleGoogle() {
         if (!window.FirebaseAuth) {
@@ -468,7 +477,6 @@ window.Auth = (function () {
             return;
         }
 
-        /* Clear previous errors */
         if (errorEl) errorEl.style.display = 'none';
         setLoading(true);
 
@@ -477,7 +485,6 @@ window.Auth = (function () {
         provider.addScope('email');
         provider.setCustomParameters({ prompt: 'select_account' });
 
-        /* 🔴 POPUP METHOD — instant result */
         window.FirebaseAuth.signInWithPopup(provider)
             .then(function (result) {
                 var fbUser = result.user;
@@ -487,21 +494,26 @@ window.Auth = (function () {
                     name: fbUser.displayName || (fbUser.email || '').split('@')[0],
                     email: fbUser.email,
                     photo: fbUser.photoURL || '',
-                    emailVerified: true, /* Google emails are verified */
+                    emailVerified: true,
                     isGuest: false,
                     provider: 'google.com'
                 };
 
                 console.log('[Auth] ✅ Google Sign-In success:', user.email);
-                console.log('[Auth] Name:', user.name);
-                console.log('[Auth] Photo:', user.photo);
 
                 setUser(user);
 
-                /* Save to Firestore */
                 if (window.Firestore) {
                     window.Firestore.saveProfile(user);
                 }
+
+                /* 🔴 IMMEDIATE UserData load */
+                setTimeout(function () {
+                    if (window.UserData && window.UserData.loadAllFromFirestore) {
+                        window._userDataLoaded = false;
+                        window.UserData.loadAllFromFirestore(true);
+                    }
+                }, 100);
 
                 closeModal();
                 setLoading(false);
@@ -510,7 +522,6 @@ window.Auth = (function () {
                     window.BottomNav.showToast('Welcome, ' + user.name + '!');
                 }
 
-                /* Run pending action */
                 if (pendingAction && typeof pendingAction === 'function') {
                     var action = pendingAction;
                     pendingAction = null;
@@ -524,24 +535,13 @@ window.Auth = (function () {
                 console.error('[Auth] Google error:', err.code, err.message);
 
                 var msg = err.message || 'Google sign-in failed';
-
-                if (err.code === 'auth/popup-closed-by-user') {
-                    msg = 'Sign-in cancelled';
-                } else if (err.code === 'auth/popup-blocked') {
-                    msg = 'Popup blocked! Please allow popups for this site (click the icon in address bar)';
-                } else if (err.code === 'auth/cancelled-popup-request') {
-                    /* Silent — user cancelled */
-                    return;
-                } else if (err.code === 'auth/account-exists-with-different-credential') {
-                    msg = 'This email is already registered with password. Please log in with your password.';
-                } else if (err.code === 'auth/unauthorized-domain') {
-                    msg = 'This domain is not authorized. Add 127.0.0.1 in Firebase Console → Auth → Settings → Authorized domains.';
-                } else if (err.code === 'auth/network-request-failed') {
-                    msg = 'Network error. Check your internet connection.';
-                } else if (err.code === 'auth/operation-not-allowed') {
-                    msg = 'Google Sign-In is not enabled in Firebase Console.';
-                }
-
+                if (err.code === 'auth/popup-closed-by-user') msg = 'Sign-in cancelled';
+                else if (err.code === 'auth/popup-blocked') msg = 'Popup blocked! Allow popups for this site.';
+                else if (err.code === 'auth/cancelled-popup-request') return;
+                else if (err.code === 'auth/account-exists-with-different-credential') msg = 'Email already registered with password. Log in with password.';
+                else if (err.code === 'auth/unauthorized-domain') msg = 'Domain not authorized. Add ' + window.location.hostname + ' in Firebase Console.';
+                else if (err.code === 'auth/network-request-failed') msg = 'Network error. Check your internet.';
+                else if (err.code === 'auth/operation-not-allowed') msg = 'Google Sign-In not enabled in Firebase Console.';
                 showError(msg);
             });
     }
@@ -594,28 +594,15 @@ window.Auth = (function () {
             vModal.style.cssText = 'z-index: 9999;';
             vModal.innerHTML = ''
                 + '<div class="modal-card" style="max-width:420px;text-align:center;padding:32px 24px;">'
-                +   '<div style="width:72px;height:72px;margin:0 auto 20px;background:linear-gradient(145deg,#8b7ab8,#6d5e9e);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2rem;color:#fff;">'
-                +     '📧'
-                +   '</div>'
+                +   '<div style="width:72px;height:72px;margin:0 auto 20px;background:linear-gradient(145deg,#8b7ab8,#6d5e9e);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2rem;color:#fff;">📧</div>'
                 +   '<h2 style="font-size:1.4rem;font-weight:800;color:#fff;margin-bottom:10px;">Verify your email</h2>'
-                +   '<p style="font-size:0.88rem;color:rgba(255,255,255,0.6);margin-bottom:20px;line-height:1.5;">'
-                +     'We sent a verification link to<br>'
-                +     '<strong id="verify-email-target" style="color:#b8a8e0;font-size:0.95rem;"></strong>'
-                +   '</p>'
-                +   '<p style="font-size:0.78rem;color:rgba(255,255,255,0.5);margin-bottom:24px;line-height:1.5;">'
-                +     'Click the link in the email to activate your account. Then come back and log in.'
-                +   '</p>'
+                +   '<p style="font-size:0.88rem;color:rgba(255,255,255,0.6);margin-bottom:20px;line-height:1.5;">We sent a verification link to<br><strong id="verify-email-target" style="color:#b8a8e0;font-size:0.95rem;"></strong></p>'
+                +   '<p style="font-size:0.78rem;color:rgba(255,255,255,0.5);margin-bottom:24px;line-height:1.5;">Click the link in the email to activate your account. Then come back and log in.</p>'
                 +   '<div style="display:flex;flex-direction:column;gap:10px;">'
-                +     '<button class="btn-primary" id="verify-resend-btn" style="justify-content:center;padding:12px 20px;">'
-                +       '<i class="fas fa-paper-plane"></i> Resend Email'
-                +     '</button>'
-                +     '<button class="btn-secondary" id="verify-ok-btn" style="justify-content:center;padding:12px 20px;">'
-                +       'I\'ll verify later'
-                +     '</button>'
+                +     '<button class="btn-primary" id="verify-resend-btn" style="justify-content:center;padding:12px 20px;"><i class="fas fa-paper-plane"></i> Resend Email</button>'
+                +     '<button class="btn-secondary" id="verify-ok-btn" style="justify-content:center;padding:12px 20px;">I\'ll verify later</button>'
                 +   '</div>'
-                +   '<p style="font-size:0.7rem;color:rgba(255,255,255,0.4);margin-top:16px;">'
-                +     'Check spam folder if you don\'t see the email.'
-                +   '</p>'
+                +   '<p style="font-size:0.7rem;color:rgba(255,255,255,0.4);margin-top:16px;">Check spam folder if you don\'t see the email.</p>'
                 + '</div>';
             document.body.appendChild(vModal);
         }
@@ -658,7 +645,6 @@ window.Auth = (function () {
             });
         }
 
-        /* Auto-check verification */
         if (window._verifyCheckInterval) clearInterval(window._verifyCheckInterval);
 
         var checkCount = 0;
@@ -794,7 +780,6 @@ window.Auth = (function () {
             }
         });
 
-        /* Default: guest */
         currentUser = { name: 'Guest', email: '', photo: '', isGuest: true };
         updateProfileUI();
         updateAdminAccess();
@@ -806,16 +791,13 @@ window.Auth = (function () {
             updateAdminAccess();
         });
 
-        /* ============================================================
-           Firebase listeners — POLL for ready
-        ============================================================ */
+        /* Firebase listeners — poll for ready */
         var firebaseReadyInterval = setInterval(function () {
             if (!window.FirebaseAuth) return;
 
             clearInterval(firebaseReadyInterval);
             console.log('[Auth] Firebase ready detected');
 
-            /* Auth state listener */
             window.FirebaseAuth.onAuthStateChanged(function (fbUser) {
                 if (fbUser) {
                     fbUser.reload().then(function () {
@@ -847,9 +829,7 @@ window.Auth = (function () {
             });
         }, 100);
 
-        /* ============================================================
-           Auto-cleanup stale localStorage
-        ============================================================ */
+        /* Auto-cleanup stale localStorage */
         setTimeout(function () {
             if (!window.FirebaseAuth) return;
 
@@ -872,9 +852,7 @@ window.Auth = (function () {
             }
         }, 2000);
 
-        /* ============================================================
-           Window focus — recheck verification
-        ============================================================ */
+        /* Window focus — recheck verification */
         window.addEventListener('focus', function () {
             var fbUser = window.FirebaseAuth && window.FirebaseAuth.currentUser;
             if (!fbUser) return;
@@ -912,7 +890,7 @@ window.Auth = (function () {
             }).catch(function () {});
         });
 
-        console.log('[Auth] Init complete. User:', currentUser.name, '| Guest:', currentUser.isGuest);
+        console.log('[Auth] ✅ Init complete. User:', currentUser.name, '| Guest:', currentUser.isGuest);
     }
 
     /* ============================================================

@@ -30,9 +30,9 @@
     <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
 
     <div class="app-shell">
-        <!-- ---- SIDEBAR ---- -->
+        <!-- ============ SIDEBAR ============ -->
         <aside class="sidebar liquid-glass">
-            <!-- FIXED LOGO HEADER: DOES NOT SCROLL -->
+            <!-- FIXED LOGO HEADER -->
             <div class="brand">
                 <div class="brand-left">
                     <svg class="reverb-wave-logo" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#b8a8e0" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
@@ -47,7 +47,7 @@
                 </button>
             </div>
 
-            <!-- SCROLLABLE NAV CONTENT BELOW LOGO -->
+            <!-- SCROLLABLE NAV -->
             <div class="sidebar-nav-scroll">
                 <!-- main nav -->
                 <div class="nav-group">
@@ -90,7 +90,7 @@
                     </div>
                 </div>
 
-                <!-- mini playlists — only custom (added by JS) -->
+                <!-- mini playlists — only custom (JS fills) -->
                 <div class="nav-group" id="playlists-group">
                     <div class="nav-group-header">
                         <div class="nav-group-label" style="padding:0;">Playlists</div>
@@ -103,12 +103,11 @@
             </div>
         </aside>
 
-        <!-- ---- MAIN CONTENT ---- -->
+        <!-- ============ MAIN CONTENT ============ -->
         <main class="main-content">
-            <!-- topbar with Reverb homepage branding -->
+            <!-- topbar -->
             <div class="topbar">
                 <div class="topbar-left">
-                    <!-- Mobile hamburger -->
                     <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu">
                         <i class="fas fa-bars"></i>
                     </button>
@@ -128,7 +127,6 @@
                     </div>
                 </div>
 
-                <!-- Admin button (owner only, desktop only) -->
                 <button class="admin-trigger-btn" id="admin-trigger-btn" title="Admin Panel" style="display:none;">
                     <i class="fas fa-crown"></i>
                     <span>Admin</span>
@@ -186,12 +184,12 @@
                 </div>
             </div>
 
-            <!-- hero -->
+            <!-- ============ HERO ============ -->
             <div class="hero liquid-glass">
                 <div class="hero-content">
                     <div class="hero-tag"><i class="fas fa-sparkles"></i> new ambient collection</div>
                     <h2>echoes of<br><em>tomorrow</em></h2>
-                    <p><i class="fas fa-circle-play"></i> 12 tracks · 48 min · curated for you</p>
+                    <p><i class="fas fa-circle-play"></i> curated for you</p>
                     <div class="hero-actions">
                         <button class="btn-primary" id="hero-play-btn"><i class="fas fa-play"></i> Play now</button>
                         <button class="btn-secondary"><i class="fas fa-plus"></i> Save</button>
@@ -208,256 +206,48 @@
                 </div>
             </div>
 
-            <!-- FRESH DROPS -->
-            <div class="section-head">
+            <!-- ALL SONGS (dynamic, from Firestore) -->
+            <div class="section-head" id="all-songs-head" style="display:none;">
+                <h3>all songs <small>latest uploads</small></h3>
+                <a href="#">view all <i class="fas fa-arrow-right" style="font-size:0.7rem;"></i></a>
+            </div>
+            <div class="song-list" id="all-songs-list"></div>
+
+            <!-- Loading state -->
+            <div class="song-list-loading" id="songs-loading" style="display:none;">
+                <div class="loading-spinner"></div>
+                <p>Loading songs...</p>
+            </div>
+
+            <!-- Empty state -->
+            <div class="library-empty" id="songs-empty">
+                <i class="fas fa-music"></i>
+                <p>No songs yet</p>
+                <span>Songs uploaded by admin will appear here</span>
+            </div>
+
+            <!-- FRESH DROPS (dynamic) -->
+            <div class="section-head" id="fresh-drops-head" style="display:none;">
                 <h3>fresh drops <small>just for you</small></h3>
                 <a href="#">see all <i class="fas fa-arrow-right" style="font-size:0.7rem;"></i></a>
             </div>
-            <div class="music-grid">
-                <div class="music-card liquid-glass">
-                    <div class="card-art">
-                        <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400&h=400&fit=crop" alt="Velvet Sky">
-                        <div class="card-play-overlay">
-                            <div class="card-play-btn"><i class="fas fa-play"></i></div>
-                        </div>
-                    </div>
-                    <div class="card-title">Velvet Sky</div>
-                    <div class="card-artist"><i class="fas fa-user"></i> Aurora Fields</div>
-                </div>
-                <div class="music-card liquid-glass">
-                    <div class="card-art">
-                        <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&h=400&fit=crop" alt="Moonlit">
-                        <div class="card-play-overlay">
-                            <div class="card-play-btn"><i class="fas fa-play"></i></div>
-                        </div>
-                    </div>
-                    <div class="card-title">Moonlit</div>
-                    <div class="card-artist"><i class="fas fa-user"></i> Nocturne Club</div>
-                </div>
-                <div class="music-card liquid-glass">
-                    <div class="card-art">
-                        <img src="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=400&h=400&fit=crop" alt="Deep Blue">
-                        <div class="card-play-overlay">
-                            <div class="card-play-btn"><i class="fas fa-play"></i></div>
-                        </div>
-                    </div>
-                    <div class="card-title">Deep Blue</div>
-                    <div class="card-artist"><i class="fas fa-user"></i> Kaya</div>
-                </div>
-                <div class="music-card liquid-glass">
-                    <div class="card-art">
-                        <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=400&fit=crop" alt="Reverb Waves">
-                        <div class="card-play-overlay">
-                            <div class="card-play-btn"><i class="fas fa-play"></i></div>
-                        </div>
-                    </div>
-                    <div class="card-title">Reverb Waves</div>
-                    <div class="card-artist"><i class="fas fa-user"></i> Lumen</div>
-                </div>
-                <div class="music-card liquid-glass">
-                    <div class="card-art">
-                        <img src="https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=400&h=400&fit=crop" alt="Solstice">
-                        <div class="card-play-overlay">
-                            <div class="card-play-btn"><i class="fas fa-play"></i></div>
-                        </div>
-                    </div>
-                    <div class="card-title">Solstice</div>
-                    <div class="card-artist"><i class="fas fa-user"></i> Mirage</div>
-                </div>
-            </div>
+            <div class="music-grid" id="fresh-drops-grid"></div>
 
-            <!-- DEMO SONGS -->
-            <div class="section-head">
-                <h3>demo songs <small>click to play</small></h3>
-                <a href="#">view all <i class="fas fa-arrow-right" style="font-size:0.7rem;"></i></a>
-            </div>
-            <div class="song-list">
-                <div class="song-row">
-                    <div class="song-play"><i class="fas fa-play"></i></div>
-                    <div class="song-thumb">
-                        <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=80&h=80&fit=crop" alt="">
-                    </div>
-                    <div class="song-info">
-                        <span class="song-title">Midnight Sun</span>
-                        <span class="song-artist">Lumen & Echo</span>
-                    </div>
-                    <span class="song-album">Echoes of Tomorrow</span>
-                    <span class="song-duration">3:42</span>
-                    <i class="fas fa-heart song-like"></i>
-                </div>
-                <div class="song-row">
-                    <div class="song-play"><i class="fas fa-play"></i></div>
-                    <div class="song-thumb">
-                        <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=80&h=80&fit=crop" alt="">
-                    </div>
-                    <div class="song-info">
-                        <span class="song-title">Velvet Sky</span>
-                        <span class="song-artist">Aurora Fields</span>
-                    </div>
-                    <span class="song-album">Fresh Drops</span>
-                    <span class="song-duration">4:15</span>
-                    <i class="fas fa-heart song-like"></i>
-                </div>
-                <div class="song-row">
-                    <div class="song-play"><i class="fas fa-play"></i></div>
-                    <div class="song-thumb">
-                        <img src="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=80&h=80&fit=crop" alt="">
-                    </div>
-                    <div class="song-info">
-                        <span class="song-title">Deep Blue</span>
-                        <span class="song-artist">Kaya</span>
-                    </div>
-                    <span class="song-album">Oceanic</span>
-                    <span class="song-duration">3:28</span>
-                    <i class="fas fa-heart song-like"></i>
-                </div>
-                <div class="song-row">
-                    <div class="song-play"><i class="fas fa-play"></i></div>
-                    <div class="song-thumb">
-                        <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=80&h=80&fit=crop" alt="">
-                    </div>
-                    <div class="song-info">
-                        <span class="song-title">Moonlit</span>
-                        <span class="song-artist">Nocturne Club</span>
-                    </div>
-                    <span class="song-album">After Hours</span>
-                    <span class="song-duration">5:02</span>
-                    <i class="fas fa-heart song-like"></i>
-                </div>
-                <div class="song-row">
-                    <div class="song-play"><i class="fas fa-play"></i></div>
-                    <div class="song-thumb">
-                        <img src="https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=80&h=80&fit=crop" alt="">
-                    </div>
-                    <div class="song-info">
-                        <span class="song-title">Reverb Waves</span>
-                        <span class="song-artist">Lumen</span>
-                    </div>
-                    <span class="song-album">Reverb Waves</span>
-                    <span class="song-duration">4:38</span>
-                    <i class="fas fa-heart song-like"></i>
-                </div>
-            </div>
-
-            <!-- LATE NIGHT PICKS -->
-            <div class="section-head">
+            <!-- LATE NIGHT PICKS (dynamic) -->
+            <div class="section-head" id="late-night-head" style="display:none;">
                 <h3>for late hours <small>chill & unwind</small></h3>
                 <a href="#">explore <i class="fas fa-arrow-right" style="font-size:0.7rem;"></i></a>
             </div>
-            <div class="music-grid">
-                <div class="music-card liquid-glass">
-                    <div class="card-art">
-                        <img src="https://images.unsplash.com/photo-1499415479124-43c32433a620?w=400&h=400&fit=crop" alt="After Hours">
-                        <div class="card-play-overlay">
-                            <div class="card-play-btn"><i class="fas fa-play"></i></div>
-                        </div>
-                    </div>
-                    <div class="card-title">After Hours</div>
-                    <div class="card-artist"><i class="fas fa-user"></i> Various Artists</div>
-                </div>
-                <div class="music-card liquid-glass">
-                    <div class="card-art">
-                        <img src="https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=400&h=400&fit=crop" alt="Soft Static">
-                        <div class="card-play-overlay">
-                            <div class="card-play-btn"><i class="fas fa-play"></i></div>
-                        </div>
-                    </div>
-                    <div class="card-title">Soft Static</div>
-                    <div class="card-artist"><i class="fas fa-user"></i> Wren</div>
-                </div>
-                <div class="music-card liquid-glass">
-                    <div class="card-art">
-                        <img src="https://images.unsplash.com/photo-1446057032654-9d8885db76c6?w=400&h=400&fit=crop" alt="Fern">
-                        <div class="card-play-overlay">
-                            <div class="card-play-btn"><i class="fas fa-play"></i></div>
-                        </div>
-                    </div>
-                    <div class="card-title">Fern</div>
-                    <div class="card-artist"><i class="fas fa-user"></i> Bamboo</div>
-                </div>
-                <div class="music-card liquid-glass">
-                    <div class="card-art">
-                        <img src="https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?w=400&h=400&fit=crop" alt="Deep Current">
-                        <div class="card-play-overlay">
-                            <div class="card-play-btn"><i class="fas fa-play"></i></div>
-                        </div>
-                    </div>
-                    <div class="card-title">Deep Current</div>
-                    <div class="card-artist"><i class="fas fa-user"></i> Kaya</div>
-                </div>
-                <div class="music-card liquid-glass">
-                    <div class="card-art">
-                        <img src="https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=400&h=400&fit=crop" alt="Starlit">
-                        <div class="card-play-overlay">
-                            <div class="card-play-btn"><i class="fas fa-play"></i></div>
-                        </div>
-                    </div>
-                    <div class="card-title">Starlit</div>
-                    <div class="card-artist"><i class="fas fa-user"></i> Nova</div>
-                </div>
-            </div>
+            <div class="music-grid" id="late-night-grid"></div>
 
-            <!-- MADE FOR YOU -->
-            <div class="section-head">
+            <!-- MADE FOR YOU (dynamic) -->
+            <div class="section-head" id="made-for-you-head" style="display:none;">
                 <h3>made for you <small>daily mixes</small></h3>
                 <a href="#">discover <i class="fas fa-arrow-right" style="font-size:0.7rem;"></i></a>
             </div>
-            <div class="music-grid">
-                <div class="music-card liquid-glass">
-                    <div class="card-art">
-                        <img src="https://images.unsplash.com/photo-1484876065684-b683cf17d276?w=400&h=400&fit=crop" alt="Reverb Radio">
-                        <div class="card-play-overlay">
-                            <div class="card-play-btn"><i class="fas fa-play"></i></div>
-                        </div>
-                    </div>
-                    <div class="card-title">Reverb Radio</div>
-                    <div class="card-artist"><i class="fas fa-infinity"></i> endless chill</div>
-                </div>
-                <div class="music-card liquid-glass">
-                    <div class="card-art">
-                        <img src="https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?w=400&h=400&fit=crop" alt="Morning Brew">
-                        <div class="card-play-overlay">
-                            <div class="card-play-btn"><i class="fas fa-play"></i></div>
-                        </div>
-                    </div>
-                    <div class="card-title">Morning Brew</div>
-                    <div class="card-artist"><i class="fas fa-sun"></i> daily mix 1</div>
-                </div>
-                <div class="music-card liquid-glass">
-                    <div class="card-art">
-                        <img src="https://images.unsplash.com/photo-1519638831568-d9897f54ed69?w=400&h=400&fit=crop" alt="Focus Flow">
-                        <div class="card-play-overlay">
-                            <div class="card-play-btn"><i class="fas fa-play"></i></div>
-                        </div>
-                    </div>
-                    <div class="card-title">Focus Flow</div>
-                    <div class="card-artist"><i class="fas fa-brain"></i> deep work</div>
-                </div>
-                <div class="music-card liquid-glass">
-                    <div class="card-art">
-                        <img src="https://images.unsplash.com/photo-1464375117522-1311d6a5b81f?w=400&h=400&fit=crop" alt="Acoustic Chill">
-                        <div class="card-play-overlay">
-                            <div class="card-play-btn"><i class="fas fa-play"></i></div>
-                        </div>
-                    </div>
-                    <div class="card-title">Acoustic Chill</div>
-                    <div class="card-artist"><i class="fas fa-fire"></i> unwind</div>
-                </div>
-                <div class="music-card liquid-glass">
-                    <div class="card-art">
-                        <img src="https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=400&h=400&fit=crop" alt="Lo-Fi Beats">
-                        <div class="card-play-overlay">
-                            <div class="card-play-btn"><i class="fas fa-play"></i></div>
-                        </div>
-                    </div>
-                    <div class="card-title">Lo-Fi Beats</div>
-                    <div class="card-artist"><i class="fas fa-moon"></i> study session</div>
-                </div>
-            </div>
+            <div class="music-grid" id="made-for-you-grid"></div>
 
-            <!-- ============================================
-                 LIBRARY PAGE
-            ============================================ -->
+            <!-- ============ LIBRARY PAGE ============ -->
             <section class="library-page" id="library-page">
                 <div class="library-header">
                     <div class="library-header-top">
@@ -496,86 +286,24 @@
                             <span class="library-liked-meta">Playlist · 0 songs</span>
                         </div>
                     </div>
-                    <!-- Custom playlists will be added here by JS -->
+                    <!-- Custom playlists (JS fills) -->
                 </div>
 
-                <!-- Tab Content: ARTISTS -->
+                <!-- Tab Content: ARTISTS (dynamic) -->
                 <div class="library-tab-content" data-content="artists" style="display:none;">
-                    <div class="library-item" data-play-target="0">
-                        <div class="library-item-art library-artist-art">
-                            <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=100&h=100&fit=crop" alt="Lumen & Echo">
-                        </div>
-                        <div class="library-item-info">
-                            <span class="library-item-title">Lumen & Echo</span>
-                            <span class="library-item-meta">Artist</span>
-                        </div>
-                    </div>
-                    <div class="library-item" data-play-target="1">
-                        <div class="library-item-art library-artist-art">
-                            <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=100&h=100&fit=crop" alt="Aurora Fields">
-                        </div>
-                        <div class="library-item-info">
-                            <span class="library-item-title">Aurora Fields</span>
-                            <span class="library-item-meta">Artist</span>
-                        </div>
-                    </div>
-                    <div class="library-item" data-play-target="2">
-                        <div class="library-item-art library-artist-art">
-                            <img src="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=100&h=100&fit=crop" alt="Kaya">
-                        </div>
-                        <div class="library-item-info">
-                            <span class="library-item-title">Kaya</span>
-                            <span class="library-item-meta">Artist</span>
-                        </div>
-                    </div>
-                    <div class="library-item" data-play-target="3">
-                        <div class="library-item-art library-artist-art">
-                            <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=100&h=100&fit=crop" alt="Nocturne Club">
-                        </div>
-                        <div class="library-item-info">
-                            <span class="library-item-title">Nocturne Club</span>
-                            <span class="library-item-meta">Artist</span>
-                        </div>
+                    <div class="library-empty">
+                        <i class="fas fa-user"></i>
+                        <p>No artists yet</p>
+                        <span>Artists appear when songs are uploaded</span>
                     </div>
                 </div>
 
-                <!-- Tab Content: ALBUMS -->
+                <!-- Tab Content: ALBUMS (dynamic) -->
                 <div class="library-tab-content" data-content="albums" style="display:none;">
-                    <div class="library-item" data-play-target="0">
-                        <div class="library-item-art">
-                            <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=100&h=100&fit=crop" alt="Echoes of Tomorrow">
-                        </div>
-                        <div class="library-item-info">
-                            <span class="library-item-title">Echoes of Tomorrow</span>
-                            <span class="library-item-meta">Album · Lumen & Echo</span>
-                        </div>
-                    </div>
-                    <div class="library-item" data-play-target="1">
-                        <div class="library-item-art">
-                            <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=100&h=100&fit=crop" alt="Fresh Drops">
-                        </div>
-                        <div class="library-item-info">
-                            <span class="library-item-title">Fresh Drops</span>
-                            <span class="library-item-meta">Album · Aurora Fields</span>
-                        </div>
-                    </div>
-                    <div class="library-item" data-play-target="2">
-                        <div class="library-item-art">
-                            <img src="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=100&h=100&fit=crop" alt="Oceanic">
-                        </div>
-                        <div class="library-item-info">
-                            <span class="library-item-title">Oceanic</span>
-                            <span class="library-item-meta">Album · Kaya</span>
-                        </div>
-                    </div>
-                    <div class="library-item" data-play-target="3">
-                        <div class="library-item-art">
-                            <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=100&h=100&fit=crop" alt="After Hours">
-                        </div>
-                        <div class="library-item-info">
-                            <span class="library-item-title">After Hours</span>
-                            <span class="library-item-meta">Album · Nocturne Club</span>
-                        </div>
+                    <div class="library-empty">
+                        <i class="fas fa-compact-disc"></i>
+                        <p>No albums yet</p>
+                        <span>Albums appear when songs are uploaded</span>
                     </div>
                 </div>
 
@@ -589,9 +317,7 @@
                 </div>
             </section>
 
-            <!-- ============================================
-                 SEARCH PAGE
-            ============================================ -->
+            <!-- ============ SEARCH PAGE ============ -->
             <section class="search-page" id="search-page">
                 <div class="search-page-header">
                     <div class="search-page-input-wrap">
@@ -630,9 +356,7 @@
                 </div>
             </section>
 
-            <!-- ============================================
-                 EXPLORE PAGE
-            ============================================ -->
+            <!-- ============ EXPLORE PAGE ============ -->
             <section class="explore-page" id="explore-page">
                 <div class="page-header">
                     <h2>Explore</h2>
@@ -684,64 +408,25 @@
                 </div>
             </section>
 
-            <!-- ============================================
-                 ARTISTS PAGE
-            ============================================ -->
+            <!-- ============ ARTISTS PAGE ============ -->
             <section class="artists-page" id="artists-page">
                 <div class="page-header">
                     <h2>Artists</h2>
                     <p>Voices you love</p>
                 </div>
 
-                <div class="artists-grid">
-                    <div class="artist-card" data-play-target="0">
-                        <div class="artist-art">
-                            <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=200&h=200&fit=crop" alt="Lumen & Echo">
-                        </div>
-                        <span class="artist-name">Lumen & Echo</span>
-                        <span class="artist-meta">12 songs</span>
-                    </div>
-                    <div class="artist-card" data-play-target="1">
-                        <div class="artist-art">
-                            <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=200&h=200&fit=crop" alt="Aurora Fields">
-                        </div>
-                        <span class="artist-name">Aurora Fields</span>
-                        <span class="artist-meta">8 songs</span>
-                    </div>
-                    <div class="artist-card" data-play-target="2">
-                        <div class="artist-art">
-                            <img src="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=200&h=200&fit=crop" alt="Kaya">
-                        </div>
-                        <span class="artist-name">Kaya</span>
-                        <span class="artist-meta">15 songs</span>
-                    </div>
-                    <div class="artist-card" data-play-target="3">
-                        <div class="artist-art">
-                            <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop" alt="Nocturne Club">
-                        </div>
-                        <span class="artist-name">Nocturne Club</span>
-                        <span class="artist-meta">10 songs</span>
-                    </div>
-                    <div class="artist-card" data-play-target="4">
-                        <div class="artist-art">
-                            <img src="https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=200&h=200&fit=crop" alt="Lumen">
-                        </div>
-                        <span class="artist-name">Lumen</span>
-                        <span class="artist-meta">6 songs</span>
-                    </div>
-                    <div class="artist-card" data-play-target="6">
-                        <div class="artist-art">
-                            <img src="https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=200&h=200&fit=crop" alt="Wren">
-                        </div>
-                        <span class="artist-name">Wren</span>
-                        <span class="artist-meta">9 songs</span>
-                    </div>
+                <div class="artists-grid" id="artists-grid">
+                    <!-- Populated by JS -->
+                </div>
+
+                <div class="library-empty" id="artists-empty">
+                    <i class="fas fa-user"></i>
+                    <p>No artists yet</p>
+                    <span>Artists appear when songs are uploaded</span>
                 </div>
             </section>
 
-            <!-- ============================================
-                 ARTIST PROFILE PAGE
-            ============================================ -->
+            <!-- ============ ARTIST PROFILE PAGE ============ -->
             <section class="artist-profile-page" id="artist-profile-page">
                 <button class="artist-back-btn" id="artist-back-btn">
                     <i class="fas fa-arrow-left"></i>
@@ -785,23 +470,23 @@
                 </div>
             </section>
 
-            <!-- ============================================
-                 PLAYLISTS PAGE
-            ============================================ -->
+            <!-- ============ PLAYLISTS PAGE ============ -->
             <section class="playlists-page" id="playlists-page">
                 <div class="page-header">
                     <h2>Your Playlists</h2>
                     <p>All your curated collections</p>
                 </div>
 
-                <div class="playlists-page-grid" id="playlists-page-grid">
-                    <!-- Custom playlists will be added by JS -->
+                <div class="playlists-page-grid" id="playlists-page-grid"></div>
+
+                <div class="library-empty" id="playlists-empty">
+                    <i class="fas fa-list-ul"></i>
+                    <p>No playlists yet</p>
+                    <span>Create one with the + button</span>
                 </div>
             </section>
 
-            <!-- ============================================
-                 LIKED SONGS PAGE
-            ============================================ -->
+            <!-- ============ LIKED SONGS PAGE ============ -->
             <section class="liked-page" id="liked-page">
                 <div class="page-header">
                     <h2><i class="fas fa-heart" style="color:#e85d9e;"></i> Liked Songs</h2>
@@ -815,9 +500,7 @@
                 </div>
             </section>
 
-            <!-- ============================================
-                 RECENTLY PLAYED PAGE
-            ============================================ -->
+            <!-- ============ RECENTLY PLAYED PAGE ============ -->
             <section class="recent-page" id="recent-page">
                 <div class="page-header">
                     <h2>Recently Played</h2>
@@ -831,9 +514,7 @@
                 </div>
             </section>
 
-            <!-- ============================================
-                 DOWNLOADS PAGE
-            ============================================ -->
+            <!-- ============ DOWNLOADS PAGE ============ -->
             <section class="downloads-page" id="downloads-page">
                 <div class="page-header">
                     <h2>Downloads</h2>
@@ -847,9 +528,7 @@
                 </div>
             </section>
 
-            <!-- ============================================
-                 ALBUM DETAIL PAGE
-            ============================================ -->
+            <!-- ============ ALBUM DETAIL PAGE ============ -->
             <section class="album-page" id="album-page">
                 <button class="artist-back-btn" id="album-back-btn">
                     <i class="fas fa-arrow-left"></i>
@@ -898,9 +577,7 @@
                 </div>
             </section>
 
-            <!-- ============================================
-                 PROFILE EDIT PAGE
-            ============================================ -->
+            <!-- ============ PROFILE EDIT PAGE ============ -->
             <section class="profile-edit-page" id="profile-edit-page">
                 <button class="artist-back-btn" id="profile-edit-back">
                     <i class="fas fa-arrow-left"></i>
@@ -947,9 +624,7 @@
                 </div>
             </section>
 
-            <!-- ============================================
-                 SETTINGS PAGE
-            ============================================ -->
+            <!-- ============ SETTINGS PAGE ============ -->
             <section class="settings-page" id="settings-page">
                 <button class="artist-back-btn" id="settings-back">
                     <i class="fas fa-arrow-left"></i>
@@ -1100,9 +775,7 @@
                 </div>
             </section>
 
-            <!-- ============================================
-                 FOLLOWED ARTISTS PAGE
-            ============================================ -->
+            <!-- ============ FOLLOWED ARTISTS PAGE ============ -->
             <section class="followed-page" id="followed-page">
                 <div class="page-header">
                     <h2><i class="fas fa-heart" style="color:#e85d9e;"></i> Following</h2>
@@ -1116,9 +789,7 @@
                 </div>
             </section>
 
-            <!-- ============================================
-                 ADMIN PAGE
-            ============================================ -->
+            <!-- ============ ADMIN PAGE ============ -->
             <section class="admin-page" id="admin-page">
                 <div class="admin-header">
                     <div class="admin-header-left">
@@ -1160,13 +831,10 @@
         </main>
     </div>
 
-    <!-- ============================================
-         MINI PLAYER (Spotify-style popup)
-    ============================================ -->
+    <!-- ============ MINI PLAYER ============ -->
     <div class="player-dock liquid-glass" id="mini-player">
         <audio id="audio-player" preload="auto"></audio>
 
-        <!-- Progress line at top (thin) -->
         <div class="mini-progress" id="mini-progress">
             <div class="mini-progress-fill" id="progress-fill"></div>
             <input type="range" id="progress-slider" min="0" max="100" value="0" step="0.1">
@@ -1174,22 +842,20 @@
 
         <div class="player-left" id="mini-player-left">
             <div class="player-art">
-                <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=100&h=100&fit=crop" alt="Now Playing Art" id="player-art-img">
+                <img src="" alt="Now Playing Art" id="player-art-img">
             </div>
             <div class="player-track">
-                <h4 id="player-track-title">Midnight Sun</h4>
-                <p id="player-track-artist">Lumen & Echo</p>
+                <h4 id="player-track-title">No track</h4>
+                <p id="player-track-artist">—</p>
             </div>
         </div>
 
-        <!-- Quick controls (mobile) -->
         <div class="mini-controls">
             <i class="fas fa-backward-step" id="prev-btn" title="Previous Track"></i>
             <i class="fas fa-play-circle" id="main-play-btn" title="Play / Pause"></i>
             <i class="fas fa-forward-step" id="next-btn" title="Next Track"></i>
         </div>
 
-        <!-- Full controls (desktop only) -->
         <div class="player-center">
             <div class="player-buttons">
                 <i class="fas fa-backward-step desktop-only" id="prev-btn-desktop" title="Previous"></i>
@@ -1201,13 +867,12 @@
                 <div class="progress-container">
                     <input type="range" id="progress-slider-desktop" min="0" max="100" value="0" step="0.1">
                 </div>
-                <span id="total-time">3:42</span>
+                <span id="total-time">0:00</span>
             </div>
         </div>
 
-        <!-- Right side: volume, repeat, shuffle, like -->
         <div class="player-right">
-            <span class="mini-time mobile-only" id="mini-time">0:00 / 3:42</span>
+            <span class="mini-time mobile-only" id="mini-time">0:00 / 0:00</span>
 
             <div class="volume-box">
                 <i class="fas fa-volume-high" id="volume-btn" title="Mute / Unmute"></i>
@@ -1217,13 +882,15 @@
             <i class="fas fa-repeat" id="repeat-btn" title="Toggle Repeat"></i>
             <i class="fas fa-shuffle" id="shuffle-btn" title="Toggle Shuffle"></i>
 
-            <!-- ❤️ Like button -->
             <button class="mini-like-btn" id="mini-like-btn" title="Like song" type="button">
                 <i class="fas fa-heart"></i>
             </button>
+
+            <button class="mini-collapse-btn" id="mini-collapse-btn" title="Hide player" type="button">
+                <i class="fas fa-chevron-down"></i>
+            </button>
         </div>
 
-        <!-- Playlist dropdown (Add to playlist) -->
         <div class="playlist-dropdown" id="playlist-dropdown">
             <div class="playlist-dropdown-header">
                 <span>Add to playlist</span>
@@ -1235,9 +902,7 @@
         </div>
     </div>
 
-    <!-- ============================================
-         MOBILE BOTTOM NAV
-    ============================================ -->
+    <!-- ============ MOBILE BOTTOM NAV ============ -->
     <nav class="mobile-bottom-nav" id="mobile-bottom-nav">
         <button class="mbn-item active" data-nav="home" aria-label="Home">
             <i class="fas fa-house"></i>
@@ -1261,20 +926,23 @@
         </button>
     </nav>
 
-    <!-- ============================================
-         NOW PLAYING FULL SCREEN
-    ============================================ -->
+    <!-- ============ NOW PLAYING FULLSCREEN ============ -->
     <div class="now-playing-fullscreen" id="now-playing-fullscreen">
         <div class="np-topbar">
-            <button class="np-close-btn" id="np-close-btn" aria-label="Close">
-                <i class="fas fa-chevron-down"></i>
+            <!-- Left: menu -->
+            <button class="np-menu-btn" id="np-menu-btn" aria-label="More">
+                <i class="fas fa-ellipsis"></i>
             </button>
+
+            <!-- Center: playing from -->
             <div class="np-topbar-info">
                 <span class="np-topbar-label">Playing from</span>
                 <span class="np-topbar-source" id="np-source">Home</span>
             </div>
-            <button class="np-menu-btn" id="np-menu-btn" aria-label="More">
-                <i class="fas fa-ellipsis"></i>
+
+            <!-- Right: close (down arrow) -->
+            <button class="np-close-btn" id="np-close-btn" aria-label="Close">
+                <i class="fas fa-chevron-down"></i>
             </button>
         </div>
 
@@ -1301,7 +969,7 @@
             </div>
             <div class="np-time-row">
                 <span id="np-curr-time">0:00</span>
-                <span id="np-total-time">3:42</span>
+                <span id="np-total-time">0:00</span>
             </div>
         </div>
 
@@ -1345,9 +1013,7 @@
         </div>
     </div>
 
-    <!-- ============================================
-         AUTH MODAL (Login / Signup)
-    ============================================ -->
+    <!-- ============ AUTH MODAL ============ -->
     <div class="modal-overlay auth-modal" id="auth-modal">
         <div class="modal-card auth-card">
             <div class="auth-header">
@@ -1423,9 +1089,7 @@
         </div>
     </div>
 
-    <!-- ============================================
-         CREATE PLAYLIST MODAL
-    ============================================ -->
+    <!-- ============ CREATE PLAYLIST MODAL ============ -->
     <div class="modal-overlay" id="playlist-modal">
         <div class="modal-card">
             <div class="modal-header">
@@ -1443,9 +1107,7 @@
         </div>
     </div>
 
-    <!-- ============================================
-         ADD ACCOUNT MODAL
-    ============================================ -->
+    <!-- ============ ADD ACCOUNT MODAL ============ -->
     <div class="modal-overlay" id="add-account-modal">
         <div class="modal-card">
             <div class="modal-header">
@@ -1470,9 +1132,7 @@
         </div>
     </div>
 
-    <!-- ============================================
-         DELETE ACCOUNT MODAL
-    ============================================ -->
+    <!-- ============ DELETE ACCOUNT MODAL ============ -->
     <div class="modal-overlay delete-account-modal" id="delete-account-modal">
         <div class="modal-card delete-account-card">
             <div class="delete-account-header">
@@ -1516,9 +1176,7 @@
         </div>
     </div>
 
-    <!-- ============================================
-         ADMIN: SONG EDITOR MODAL
-    ============================================ -->
+    <!-- ============ ADMIN SONG MODAL ============ -->
     <div class="modal-overlay admin-modal" id="admin-song-modal">
         <div class="modal-card admin-modal-card">
             <div class="modal-header">
@@ -1543,19 +1201,37 @@
 
                 <div class="admin-form-row">
                     <div class="form-group">
-                        <label for="admin-input-album">Album</label>
-                        <input type="text" id="admin-input-album" placeholder="e.g. Echoes of Tomorrow">
-                    </div>
-                    <div class="form-group">
                         <label for="admin-input-genre">Genre</label>
-                        <input type="text" id="admin-input-genre" placeholder="e.g. Ambient, Lo-Fi">
-                    </div>
-                </div>
-
-                <div class="admin-form-row">
-                    <div class="form-group">
-                        <label for="admin-input-duration">Duration</label>
-                        <input type="text" id="admin-input-duration" placeholder="3:42">
+                        <select id="admin-input-genre" class="admin-select">
+                            <option value="">Select genre...</option>
+                            <option value="Ambient">Ambient</option>
+                            <option value="Lo-Fi">Lo-Fi</option>
+                            <option value="Chill">Chill</option>
+                            <option value="Electronic">Electronic</option>
+                            <option value="Pop">Pop</option>
+                            <option value="Rock">Rock</option>
+                            <option value="Indie">Indie</option>
+                            <option value="Hip-Hop">Hip-Hop</option>
+                            <option value="R&B">R&B</option>
+                            <option value="Jazz">Jazz</option>
+                            <option value="Classical">Classical</option>
+                            <option value="EDM">EDM</option>
+                            <option value="House">House</option>
+                            <option value="Techno">Techno</option>
+                            <option value="Trap">Trap</option>
+                            <option value="Bollywood">Bollywood</option>
+                            <option value="Punjabi">Punjabi</option>
+                            <option value="Devotional">Devotional</option>
+                            <option value="Folk">Folk</option>
+                            <option value="Instrumental">Instrumental</option>
+                            <option value="Study">Study</option>
+                            <option value="Workout">Workout</option>
+                            <option value="Sleep">Sleep</option>
+                            <option value="Party">Party</option>
+                            <option value="Romantic">Romantic</option>
+                            <option value="Sad">Sad</option>
+                            <option value="Other">Other</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label for="admin-input-release">Release Date</label>
@@ -1579,11 +1255,6 @@
                         <i class="fas fa-info-circle"></i>
                         GitHub repo → file → "Copy permalink" → paste here
                     </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="admin-input-lyrics">Lyrics (optional)</label>
-                    <textarea id="admin-input-lyrics" rows="5" placeholder="Paste lyrics here..."></textarea>
                 </div>
 
                 <div class="admin-preview">
@@ -1616,7 +1287,6 @@
     </div>
 
     <!-- ============ SCRIPTS (order matters!) ============ -->
-        <!-- ============ SCRIPTS (order matters!) ============ -->
     <script src="js/firebase-config.js"></script>
     <script src="js/data.js"></script>
     <script src="js/auth.js"></script>
@@ -1638,7 +1308,7 @@
     <script src="js/admin.js"></script>
     <script src="js/bottom-nav.js"></script>
     <script src="js/main.js"></script>
-    <script src="js/perf.js"></script>   <!-- 🔴 SABSE AAKHIR ME -->
+    <script src="js/perf.js"></script>
 </body>
 
 </html>

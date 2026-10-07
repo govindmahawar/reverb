@@ -95,7 +95,7 @@ One with all eternity`
             lyricsBody: document.getElementById('np-lyrics-body'),
             lyricsClose: document.getElementById('np-lyrics-close'),
             source: document.getElementById('np-source')
-        };
+        };z
     }
 
     /* ---------- Open / Close ---------- */

@@ -5432,6 +5432,56 @@ body.theme-darker .liquid-glass {
     justify-content: space-between;
     gap: 12px;
     flex-shrink: 0;
+    min-height: 42px;
+}
+
+/* Left side — menu button */
+.np-topbar-left {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-shrink: 0;
+    min-width: 42px;
+}
+
+/* Center — playing from info */
+.np-topbar-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+    text-align: center;
+}
+
+/* Right side — close (chevron down) button */
+.np-close-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.06);
+    border: none;
+    color: var(--text-primary);
+    font-size: 1.05rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+    flex-shrink: 0;
+    min-width: 42px;
+}
+
+.np-close-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: scale(1.05);
+}
+
+.np-close-btn i {
+    pointer-events: none;
 }
 
 .np-close-btn,
@@ -5811,6 +5861,31 @@ body.theme-darker .liquid-glass {
     .now-playing-fullscreen {
         padding: 16px 20px 24px 20px;
         gap: 14px;
+    }
+
+    .np-topbar {
+        min-height: 40px;
+        gap: 10px;
+    }
+
+    .np-close-btn,
+    .np-menu-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+        min-width: 40px;
+    }
+
+    .np-topbar-info {
+        gap: 1px;
+    }
+
+    .np-topbar-label {
+        font-size: 0.58rem;
+    }
+
+    .np-topbar-source {
+        font-size: 0.76rem;
     }
 
     .np-track-title {
@@ -7780,4 +7855,63 @@ body.page-admin .album-page {
     transform: translateY(120%) !important;
     opacity: 0 !important;
     pointer-events: none !important;
+}
+
+/* ==================================================================
+   34. SONGS LOADING STATE
+================================================================== */
+.song-list-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    gap: 12px;
+}
+
+.loading-spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid rgba(184, 168, 224, 0.2);
+    border-top-color: #b8a8e0;
+    border-radius: 50%;
+    animation: spinLoader 0.8s linear infinite;
+}
+
+@keyframes spinLoader {
+    to { transform: rotate(360deg); }
+}
+
+.song-list-loading p {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* Admin select dropdown */
+.admin-select {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    padding: 12px 16px;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 0.9rem;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23b8a8e0' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    transition: border-color 0.2s ease;
+}
+
+.admin-select:focus {
+    border-color: rgba(184, 168, 224, 0.5);
+}
+
+.admin-select option {
+    background: #14162a;
+    color: #ffffff;
+    padding: 10px;
 }
